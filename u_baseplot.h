@@ -9,6 +9,10 @@
 
 #include "QCustomPlot/qcustomplot.h"
 
+// 官网:https://www.qcustomplot.com/
+// https://blog.csdn.net/happyjoey217/article/details/115007711
+// https://www.jianshu.com/p/124d4ba5e816 [好文]
+//#include "QCustomPlot/qcustomplot.h"
 // QCPAbstractItem: https://www.cnblogs.com/swarmbees/p/6058263.html
 
 class u_baseplot : public QCustomPlot {
@@ -21,6 +25,8 @@ public:
     QMenu* m_menu;
 
 private:
+
+    void refresh();
     QTimer* m_timer_replot = nullptr;
 
     // 曲线值和十字线

@@ -52,13 +52,18 @@ u_baseplot::u_baseplot(QWidget* parent) : QCustomPlot(parent) {
         x_val = xAxis->pixelToCoord(pos.x() + m_tip_offset);
         y_val = yAxis->pixelToCoord(pos.y() + m_tip_offset);
         m_item_tip->position->setCoords(x_val, y_val);
-
     });
 
     // 绘图时钟
     m_timer_replot = new QTimer(this);
     connect(m_timer_replot, &QTimer::timeout, [&]() { replot(QCustomPlot::RefreshPriority::rpQueuedReplot); });
     m_timer_replot->start(30);  // 30ms 1帧 ≈ 1s 33帧
+
+
+}
+
+void u_baseplot::refresh(){
+     replot(QCustomPlot::RefreshPriority::rpQueuedReplot); }
 }
 
 bool u_baseplot::event_select_area(uint8_t e, QMouseEvent* event) {

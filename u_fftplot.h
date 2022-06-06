@@ -2,7 +2,6 @@
 #define U_FFTPLOT_H
 
 #include <QObject>
-#include <QWidget>
 
 class u_fftplot
 {
