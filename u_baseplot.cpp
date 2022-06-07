@@ -63,7 +63,7 @@ u_baseplot::u_baseplot(QWidget* parent) : QCustomPlot(parent) {
 }
 
 void u_baseplot::refresh(){
-     replot(QCustomPlot::RefreshPriority::rpQueuedReplot); }
+     replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 bool u_baseplot::event_select_area(uint8_t e, QMouseEvent* event) {

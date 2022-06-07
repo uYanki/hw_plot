@@ -26,9 +26,10 @@ Widget::Widget(QWidget* parent)
     m_MenuOfRecv = new QMenu(this);  // 自定义菜单
     ui->input_recv->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
     m_MenuOfRecv->addAction(QStringLiteral("clear"), [&]() { ui->input_recv->clear(); });
-    m_MenuOfRecv->addAction(QStringLiteral("save"), [&]() { savefile("txt", [&](QTextStream& out) { out << ui->text_recv->toPlainText(); }); });
+    m_MenuOfRecv->addAction(QStringLiteral("save"), [&]() { savefile("txt", [&](QTextStream& out) { out << ui->input_recv->toPlainText(); }); });
     m_MenuOfRecv->addAction(QStringLiteral("logMd"), [&]() { ui->input_recv->clear(); });  // 日志模式
-    connect(ui->input_recv, &QPlainTextEdit::customContextMenuRequested, [&]() { input_recv->exec(QCursor::pos()); });  // 弹出菜单
+    m_MenuOfRecv->addAction(QStringLiteral("raw data"), [&]() { m_RawDataMd = !m_RawDataMd; }); // 不解析模式
+    connect( ui->input_recv, &QPlainTextEdit::customContextMenuRequested, [&]() { m_MenuOfRecv->exec(QCursor::pos()); });  // 弹出菜单
 
     // 数据发送
     connect(ui->btn_send, &QPushButton::clicked, [&]() { SendData(QByteArray(ui->input_send->toPlainText().toLatin1())); });
@@ -178,6 +179,12 @@ Widget::Widget(QWidget* parent)
             // m_plot->graph(i)->setName(QString("line%1").arg(i + 1));
         }
     });
+
+    /******** channel tree *******/
+    ui->tree_channel->setRootIsDecorated(true);
+    ui->tree_channel->setHeaderHidden(true);
+    ui->tree_channel->setIndentation(0);
+
 }
 
 Widget::~Widget() { delete ui; }
@@ -216,8 +223,10 @@ bool Widget::AnalyzeCmd(QByteArray recv) {
     ui->label_bytes_of_recv->setText(QString("Recv: %1").arg(m_BytesOfRecv += recv.length()));
 
     // 显示接收的原内容
-    ui->input_recv->moveCursor(QTextCursor::End);
-    ui->input_recv->insertPlainText(recv);
+    if(m_RawDataMd){
+        ui->input_recv->moveCursor(QTextCursor::End);
+        ui->input_recv->insertPlainText(recv);
+    }
     // 注: appendPlainText(recv) 会自动换行,所以不使用该函数
 
     if (!recv.contains('\n')) return false;  // 按行读取
@@ -230,7 +239,14 @@ bool Widget::AnalyzeCmd(QByteArray recv) {
     int end = m_CmdBuffer.indexOf(m_CmdPuffix, start);
     if (end == -1) return false;
 
-    HandleCmd(m_CmdBuffer.mid(start, end - start));
+
+    QString CMD= m_CmdBuffer.mid(start, end - start);
+    // 显示接收的命令
+    if(!m_RawDataMd){
+        ui->input_recv->moveCursor(QTextCursor::End);
+        ui->input_recv->insertPlainText(CMD);
+    }
+    HandleCmd(CMD);
 
     m_CmdBuffer.clear();
 
@@ -250,8 +266,10 @@ bool Widget::HandleCmd(QString cmd) {
 
     for (int i = m_plot->graphCount(); i < list.length(); ++i) {
         m_plot->addGraph();
-        m_plot->graph(i)->setName(QString("line%1").arg(i + 1));
+        m_plot->graph(i)->setName(QString("channel%1").arg(i + 1));
         m_plot->graph(i)->setPen(QPen(QColor(color_of_series[i]), 3));
+        u_ChannelTreeItem *chan = new u_ChannelTreeItem(ui->tree_channel,QString("channel%1").arg(i + 1));
+        m_channels.append(chan);
     }
 
     // 添加数据
@@ -270,7 +288,7 @@ bool Widget::HandleCmd(QString cmd) {
 }
 
 bool Widget::SendData(QByteArray data) {
-    if (data.isEmpty()) return false;
+    if (!ui->btn_run->isChecked() || data.isEmpty()) return false;
     ui->label_bytes_of_send->setText("Send: " + QString::number(m_BytesOfSend += data.length()));
     if (ui->cmb_interface->currentText() == "Serial") {  // disconnect serial
         m_Serial->write(data);
@@ -311,7 +329,7 @@ bool Widget::savefile(QString suffix, std::function<void(QTextStream&)> pFunc) {
 }
 
 void Widget::on_btn_run_clicked() {
-    if (!ui->btn_run->isChecked()) {  // start running
+    if (ui->btn_run->isChecked()) {  // start running
 
         // connect serial
         if (ui->cmb_interface->currentText() == "Serial") {
@@ -342,7 +360,7 @@ void Widget::on_btn_run_clicked() {
         else if (ui->cmb_interface->currentText() == "UDP") {
         }
 
-        ui->cmb_interface->setEnabled(true);
+        ui->cmb_interface->setEnabled(false);
         ui->btn_run->setChecked(true);
 
     } else {  // stop running
@@ -371,7 +389,9 @@ void Widget::on_btn_run_clicked() {
             m_Udp->close();
         }
 
-        ui->cmb_interface->setEnabled(false);
+        ui->cmb_interface->setEnabled(true);
         ui->btn_run->setChecked(false);
+        m_CmdBuffer.clear();
+
     }
 }

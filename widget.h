@@ -22,6 +22,7 @@
 #include <QUdpSocket>
 
 #include "u_baseplot.h"
+#include "u_channeltreeitem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,6 +42,8 @@ private slots:
 
 private:
     Ui::Widget* ui;
+
+    bool m_RawDataMd=true;
 
     // interface ( client -> cli, server -> ser )
 
@@ -90,5 +93,9 @@ private:
     size_t      m_cur_data_idx = 0;
 
     bool savefile(QString suffix, std::function<void(QTextStream&)> pFunc);
+
+    /********** tree **********/
+
+    QList<u_ChannelTreeItem*> m_channels;
 };
 #endif  // WIDGET_H

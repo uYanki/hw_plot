@@ -7,7 +7,7 @@
 
 #include <QRubberBand>
 
-#include "QCustomPlot/qcustomplot.h"
+#include "qcustomplot.h"
 
 // 官网:https://www.qcustomplot.com/
 // https://blog.csdn.net/happyjoey217/article/details/115007711
