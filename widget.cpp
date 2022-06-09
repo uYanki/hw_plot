@@ -185,6 +185,7 @@ Widget::Widget(QWidget* parent)
     ui->tree_channel->setHeaderHidden(true);
     ui->tree_channel->setIndentation(0);
 
+
 }
 
 Widget::~Widget() { delete ui; }
