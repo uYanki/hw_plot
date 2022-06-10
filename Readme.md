@@ -1,3 +1,3 @@
-现支持模式：Serial，TCP（server、client）
+现支持模式:Serial,TCP(server、client)
 
 ![screenshot](Readme.assets/screenshot.png)

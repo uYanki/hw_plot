@@ -3,15 +3,13 @@
 
 #include <QWidget>
 
-#include <QFormLayout>
-
-#include <QTimer>
 #include <QMenu>
-#include <QComboBox>
-#include <QSplitter>
+#include <QTimer>
 
-#include <QSpinBox>
-#include <QDoubleSpinBox>
+#include <QClipboard>
+#include <QMessageBox>
+
+#include <QShortcut>
 
 /* serial */
 #include <QtSerialPort/QSerialPort>
@@ -23,60 +21,74 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 
-
-#include "uyk_menu.h"
-#include "uyk_treeitem_chan.h"
+#include "u_baseplot.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class Widget; }
+namespace Ui {
+    class Widget;
+}
 QT_END_NAMESPACE
 
-class Widget : public QWidget
-{
+class Widget : public QWidget {
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = nullptr);
+    Widget(QWidget* parent = nullptr);
     ~Widget();
 
+private slots:
+    void on_btn_run_clicked();
+
 private:
-    Ui::Widget *ui;
+    Ui::Widget* ui;
 
-    void initUI(void);
-    void initVal(void);
-
-    void (QComboBox::*pSIGNAL_COMBOBOX_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
-
-    /************** interface **************/
+    // interface ( client -> cli, server -> ser )
 
     QSerialPort* m_Serial = nullptr;
 
-    // client -> cli, server -> ser
     QTcpServer*        m_TcpServer = nullptr;
-    QList<QTcpSocket*> m_TcpSerClis; // Connections
+    QList<QTcpSocket*> m_TcpSerConnections;
 
     QTcpSocket* m_TcpClient    = nullptr;
     QTimer*     m_TmrReconnect = nullptr;
 
     QUdpSocket* m_Udp = nullptr;
 
-    /************** statistics **************/
+    void ScanSerialPort(void);
+    bool SendData(QByteArray data);
+
+    /********** hotkey **********/
+
+    QShortcut* m_hkConnect;
+
+    /********** statistics **********/
 
     size_t m_BytesOfRecv = 0;
     size_t m_BytesOfSend = 0;
 
-    /************** menu **************/
+    /********** menu **********/
 
     QMenu* m_MenuOfRecv = nullptr;  // @ input_recv
     QMenu* m_MenuOfSend = nullptr;  // @ input_send
-    QMenu* m_MenuOfSendBtn = nullptr;  // @ btn_send
 
-    /************** Continuous sending **************/
+    /********** command **********/
 
-    QWidget* m_CntrRepeatSend; // container -> cntr
-    QSpinBox* m_SpnRepeatDelay = nullptr;
-    QSpinBox* m_SpnRepeatTimes= nullptr;
+    size_t m_LenOfCmdPrefix = 0;
 
+    QByteArray m_CmdBuffer = "";       // 缓冲区
+    QString    m_CmdPrefix = "this:";  // 指令前缀 "##{"
+    QString    m_CmdPuffix = "\n";     // 指令后缀 "}##"
 
+    bool AnalyzeCmd(QByteArray recv);
+    bool HandleCmd(QString cmd);
+
+    bool eventFilter(QObject* watched, QEvent* event);
+
+    /********** plot **********/
+
+    u_baseplot* m_plot;
+    size_t      m_cur_data_idx = 0;
+
+    bool savefile(QString suffix, std::function<void(QTextStream&)> pFunc);
 };
-#endif // WIDGET_H
+#endif  // WIDGET_H
