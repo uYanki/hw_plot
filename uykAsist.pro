@@ -16,16 +16,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    qcustomplot.cpp \
     main.cpp \
-    u_baseplot.cpp \
-    u_channeltreeitem.cpp \
+    qcustomplot.cpp \
+    uyk_baseplot.cpp \
+    uyk_custom_action.cpp \
+    uyk_savefile.cpp \
+    uyk_treeitem_chan.cpp \
+    uyk_treeitem_common.cpp \
+    uyk_treeitem_oper.cpp \
     widget.cpp
 
 HEADERS += \
     qcustomplot.h \
-    u_baseplot.h \
-    u_channeltreeitem.h \
+    uyk_baseplot.h \
+    uyk_custom_action.h \
+    uyk_savefile.h \
+    uyk_treeitem_chan.h \
+    uyk_treeitem_common.h \
+    uyk_treeitem_oper.h \
     widget.h
 
 FORMS += \

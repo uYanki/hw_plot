@@ -3,13 +3,16 @@
 
 #include <QWidget>
 
+#include <QFormLayout>
+
+#include <QComboBox>
 #include <QMenu>
+#include <QShortcut>
+#include <QSplitter>
 #include <QTimer>
 
-#include <QClipboard>
-#include <QMessageBox>
-
-#include <QShortcut>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 
 /* serial */
 #include <QtSerialPort/QSerialPort>
@@ -21,8 +24,14 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 
-#include "u_baseplot.h"
-#include "u_channeltreeitem.h"
+/* custom */
+#include "uyk_custom_action.h"
+#include "uyk_treeitem_chan.h"
+#include "uyk_treeitem_oper.h"
+#include "uyk_baseplot.h"
+
+/* plugins */
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,14 +52,18 @@ private slots:
 private:
     Ui::Widget* ui;
 
-    bool m_RawDataMd=true;
+    void initUI(void);
+    void initVal(void);
 
-    // interface ( client -> cli, server -> ser )
+    void (QComboBox::*pSIGNAL_COMBOBOX_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
+
+    /************** interface **************/
 
     QSerialPort* m_Serial = nullptr;
 
+    // client -> cli, server -> ser
     QTcpServer*        m_TcpServer = nullptr;
-    QList<QTcpSocket*> m_TcpSerConnections;
+    QList<QTcpSocket*> m_TcpSerClis;  // Connections
 
     QTcpSocket* m_TcpClient    = nullptr;
     QTimer*     m_TmrReconnect = nullptr;
@@ -59,20 +72,28 @@ private:
 
     void ScanSerialPort(void);
     bool SendData(QByteArray data);
+    bool m_RawDataMd=true;
 
-    /********** hotkey **********/
-
-    QShortcut* m_hkConnect;
-
-    /********** statistics **********/
+    /************** statistics **************/
 
     size_t m_BytesOfRecv = 0;
     size_t m_BytesOfSend = 0;
 
-    /********** menu **********/
+    /************** menu **************/
 
-    QMenu* m_MenuOfRecv = nullptr;  // @ input_recv
-    QMenu* m_MenuOfSend = nullptr;  // @ input_send
+    QMenu* m_MenuOfRecv    = nullptr;  // @ input_recv
+    QMenu* m_MenuOfSend    = nullptr;  // @ input_send
+    QMenu* m_MenuOfSendBtn = nullptr;  // @ btn_send
+
+    /************** Continuous sending **************/
+
+    QWidget*  m_CntrRepeatSend;  // container -> cntr
+    QSpinBox* m_SpnRepeatDelay = nullptr;
+    QSpinBox* m_SpnRepeatTimes = nullptr;
+
+    /********** hotkey **********/
+
+    QShortcut* m_hkShowInterface;
 
     /********** command **********/
 
@@ -86,16 +107,5 @@ private:
     bool HandleCmd(QString cmd);
 
     bool eventFilter(QObject* watched, QEvent* event);
-
-    /********** plot **********/
-
-    u_baseplot* m_plot;
-    size_t      m_cur_data_idx = 0;
-
-    bool savefile(QString suffix, std::function<void(QTextStream&)> pFunc);
-
-    /********** tree **********/
-
-    QList<u_ChannelTreeItem*> m_channels;
 };
 #endif  // WIDGET_H

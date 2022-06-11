@@ -1,3 +1,1 @@
-现支持模式:Serial,TCP(server、client)
-
-![screenshot](Readme.assets/screenshot.png)
+![QQ浏览器截图20220611222554](README.assets/QQ浏览器截图20220611222554.png)
