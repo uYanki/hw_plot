@@ -17,23 +17,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    qcustomplot.cpp \
-    uyk_baseplot.cpp \
     uyk_custom_action.cpp \
     uyk_savefile.cpp \
-    uyk_treeitem_chan.cpp \
+    uyk_treeitem_channel.cpp \
     uyk_treeitem_common.cpp \
-    uyk_treeitem_oper.cpp \
+    uyk_treeitem_datafilter.cpp \
     widget.cpp
 
 HEADERS += \
-    qcustomplot.h \
-    uyk_baseplot.h \
     uyk_custom_action.h \
     uyk_savefile.h \
-    uyk_treeitem_chan.h \
+    uyk_treeitem_channel.h \
     uyk_treeitem_common.h \
-    uyk_treeitem_oper.h \
+    uyk_treeitem_datafilter.h \
     widget.h
 
 FORMS += \
@@ -44,6 +40,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-INCLUDEPATH += $$PWD/.
-DEPENDPATH += $$PWD/.
+DISTFILES +=
 
+RESOURCES += \
+    res.qrc

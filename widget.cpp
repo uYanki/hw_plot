@@ -135,6 +135,8 @@ void Widget::initUI() {
 
 void Widget::initVal() {
 
+    ui->plot->setMode(false);
+
 
     // 指令头长度
     m_LenOfCmdPrefix = m_CmdPrefix.length();
@@ -143,8 +145,8 @@ void Widget::initVal() {
     ui->input_recv->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
     m_MenuOfRecv->addAction(QStringLiteral("clear"), [&]() { ui->input_recv->clear(); });
     m_MenuOfRecv->addAction(QStringLiteral("save"), [&]() { savefile("txt", [&](QTextStream& out) { out << ui->input_recv->toPlainText(); }); });
-    m_MenuOfRecv->addAction(QStringLiteral("logMd"), [&]() { ui->input_recv->clear(); });  // 日志模式
-    m_MenuOfRecv->addAction(QStringLiteral("raw data"), [&]() { m_RawDataMd = !m_RawDataMd; }); // 不解析模式
+    m_MenuOfRecv->addAction(QStringLiteral("logMd"), [&]() { ui->input_recv->clear(); })->setCheckable(true);  // 日志模式
+    m_MenuOfRecv->addAction(QStringLiteral("raw data"), [&]() { m_RawDataMd = !m_RawDataMd; })->setCheckable(true); // 不解析模式
     connect( ui->input_recv, &QPlainTextEdit::customContextMenuRequested, [&]() { m_MenuOfRecv->exec(QCursor::pos()); });  // 弹出菜单
 
     // 数据发送
@@ -170,13 +172,6 @@ void Widget::initVal() {
     }
     // 左键双击复制本地ip地址
     ui->label_tcp_server_local_ip->installEventFilter(this);
-
-
-    // input limit
-    QValidator* validator = new QIntValidator(0, 65535, this);
-    ui->input_tcp_server_port->setValidator(validator);
-    ui->input_tcp_client_port->setValidator(validator);
-    ui->input_udp_remote_ip->setValidator(validator);
 
     // configure data handler
 
@@ -283,7 +278,7 @@ void Widget::on_btn_run_clicked() {
         }
         // stop listen
         else if (ui->cmb_interface->currentText() == "TCP Server") {
-            // 需先断开所有连接, 否则还是会接收到客户发送来的消息的
+
             foreach (auto client, m_TcpSerClis)
                 client->close();
             m_TcpServer->close();
@@ -366,12 +361,12 @@ bool Widget::HandleCmd(QString cmd) {
 
     QVector<double> vals;
 
-    for (int i = 0; i < list.length(); ++i)  vals << list.at(i).toFloat();
+    for (int i = 0; i < list.length()-1; ++i)  vals << list.at(i).toFloat();
 
     ui->plot->addVals(vals);
 
-    ui->plot->xAxis->setRange((ui->plot->m_index1 > 2000) ? (ui->plot->m_index1 - 2000) : 0, ui->plot->m_index1);
-
+//    ui->plot->xAxis->setRange((ui->plot->m_index1 > 2000) ? (ui->plot->m_index1 - 2000) : 0, ui->plot->m_index1);
+    ui->plot->xAxis->setRange((ui->plot->m_index2> 2000) ? (ui->plot->m_index2 - 2000) : 0, ui->plot->m_index2);
     return true;
 }
 

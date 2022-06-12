@@ -1,5 +1,43 @@
 #include "uyk_baseplot.h"
 
+// https://whycan.com/t_2804.html
+void fft(const double* src_x, const double* src_y, double* dst_x, double* dst_y, int k) {
+
+
+    int i, n;
+    double temp, temp_x, temp_y;
+    double* buffer;
+    if (0 == k) {
+        *dst_x = *src_x;
+        *dst_y = *src_y;
+        return;
+    }
+    n = 1 << (k - 1);
+    buffer = (double*)malloc(4 * n * sizeof(double));
+    for (i = 0; i < n; i++) {
+        buffer[i] = src_x[i * 2];
+        buffer[i + n] = src_y[i * 2];
+        buffer[i + 2 * n] = src_x[i * 2 + 1];
+        buffer[i + 3 * n] = src_y[i * 2 + 1];
+    }
+    fft((const double*)buffer + 2 * n, (const double*)buffer + 3 * n, dst_x, dst_y, k - 1);
+    fft((const double*)buffer, (const double*)buffer + n, (double*)buffer + 2 * n, (double*)buffer + 3 * n, k - 1);
+    for (i = 0; i < n; i++) {
+        temp = i * M_PI / n;
+        temp_x = cos(temp);
+        temp_y = sin(temp);
+        buffer[i] = dst_y[i] * temp_y + dst_x[i] * temp_x;
+        buffer[i + n] = dst_y[i] * temp_x - dst_x[i] * temp_y;
+        dst_x[i] = buffer[i + 2 * n] + buffer[i];
+        dst_y[i] = buffer[i + 3 * n] + buffer[i + n];
+        dst_x[i + n] = buffer[i + 2 * n] - buffer[i];
+        dst_y[i + n] = buffer[i + 3 * n] - buffer[i + n];
+    }
+    free(buffer);
+}
+
+
+
 uyk_baseplot::uyk_baseplot(QWidget* parent) : QCustomPlot(parent) {
     initAxes();
     initLegend();
@@ -19,7 +57,7 @@ uyk_baseplot::uyk_baseplot(QWidget* parent) : QCustomPlot(parent) {
     // 绘图时钟
     m_timer_replot = new QTimer(this);
     connect(m_timer_replot, &QTimer::timeout, [&]() { replot(QCustomPlot::RefreshPriority::rpQueuedReplot); });
-    m_timer_replot->start(35);  // 30ms 1帧 ≈ 1s 28帧
+    m_timer_replot->start(20);  // 30ms 1帧 ≈ 1s 28帧
 }
 
 void uyk_baseplot::initAxes() {
@@ -37,8 +75,8 @@ void uyk_baseplot::initAxes() {
     subLayout->addElement(0, 0, axisrect_val = new QCPAxisRect(this, false));  // at left
     subLayout->addElement(0, 1, axisrect_fft = new QCPAxisRect(this, false));  // at right
 
-    plotLayout()->setRowStretchFactor(0, 0.75);
-    plotLayout()->setRowStretchFactor(1, 0.25);
+    plotLayout()->setRowStretchFactor(1, 0.75);
+    plotLayout()->setRowStretchFactor(0, 0.25);
     subLayout->setColumnStretchFactor(0, 0.3);
     subLayout->setColumnStretchFactor(1, 0.7);
 
@@ -135,8 +173,9 @@ void uyk_baseplot::initGraph() {
 
     /************ setup style ************/
 
-    graph_org->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black), QBrush(Qt::white), 6));
-    graph_fft->setLineStyle(QCPGraph::lsImpulse);
+//    graph_org->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(Qt::black), QBrush(Qt::white), 6));
+    graph_fft->setLineStyle(QCPGraph::lsStepCenter);
+    graph_fft->setBrush(QBrush(QColor(Qt::red)));
 
     /************ add to legend ************/
 
@@ -249,6 +288,7 @@ void uyk_baseplot::addVals(const QVector<double>& values) {
 
     // addData & setData will alloc new buffer, and then copy old buffer to new buffer, so don't use them
     if (mMode) {
+
         for (int i = graphs_org.length(); i < values.length(); ++i) {  // auto add graph
             QCPGraph* p = addGraph(axisrect_org->axis(QCPAxis::atBottom), axisrect_org->axis(QCPAxis::atLeft));
             p->setName(tr("line%1").arg(i + 1));
@@ -265,8 +305,26 @@ void uyk_baseplot::addVals(const QVector<double>& values) {
         ++m_index1;
 
     } else {
-        for (int i = 0; i < values.length(); ++i)
+
+        double src_x[128],  src_y[128], dst_x[128], dst_y[128];
+
+        for (int i = 0; i <128; ++i){
             graph_org->data()->add(QCPGraphData(++m_index2, values.at(i)));
+
+            src_x[i]= values.at(i);
+            src_y[i]= 0;
+            dst_x[i]= 0;
+            dst_y[i]= 0;
+        }
+
+
+        fft(src_x,src_y,dst_x,dst_y,7);
+        graph_fft->data().data()->clear();
+        for(int i=0;i<64;++i)
+            graph_fft->data()->add(QCPGraphData(i, qSqrt(dst_x[i]*dst_x[i]+dst_y[i]*dst_y[i])));
+
+        replot();
+
     }
 }
 
@@ -366,6 +424,9 @@ void uyk_baseplot::updateTips() {
     } else {
         float y_val = graph_org->data()->at(x_val)->value;
         tip += graph_org->name() + ": " + QString::number(y_val);
+
+        graph_fft->rescaleAxes(true);
+
     }
 
     m_valtip->setText(tip);

@@ -72,7 +72,7 @@ private:
 
     void ScanSerialPort(void);
     bool SendData(QByteArray data);
-    bool m_RawDataMd=true;
+    bool m_RawDataMd=false;
 
     /************** statistics **************/
 
@@ -100,7 +100,7 @@ private:
     size_t m_LenOfCmdPrefix = 0;
 
     QByteArray m_CmdBuffer = "";       // 缓冲区
-    QString    m_CmdPrefix = "this:";  // 指令前缀 "##{"
+    QString    m_CmdPrefix = "";  // 指令前缀 "##{"
     QString    m_CmdPuffix = "\n";     // 指令后缀 "}##"
 
     bool AnalyzeCmd(QByteArray recv);
