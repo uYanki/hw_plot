@@ -3,16 +3,19 @@
 
 #include <QWidget>
 
-#include <QFormLayout>
-
-#include <QComboBox>
-#include <QMenu>
-#include <QShortcut>
-#include <QSplitter>
 #include <QTimer>
+#include <QShortcut>
 
-#include <QDoubleSpinBox>
-#include <QSpinBox>
+#include <QSplitter>
+
+#include <QMenu>
+#include <QComboBox>
+
+#include <QMessageBox>
+
+#include <QMouseEvent>
+
+#include <QClipboard>
 
 /* serial */
 #include <QtSerialPort/QSerialPort>
@@ -24,88 +27,114 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 
-/* custom */
-#include "uyk_custom_action.h"
-#include "uyk_treeitem_chan.h"
-#include "uyk_treeitem_oper.h"
+
+#include "uyk_savefile.h"
+#include "uyk_treeitem_channel.h"
+#include "uyk_treeitem_datafilter.h"
 #include "uyk_baseplot.h"
-
-/* plugins */
-
+#include "uyk_custom_action.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-    class Widget;
-}
+namespace Ui { class Widget; }
 QT_END_NAMESPACE
 
-class Widget : public QWidget {
+
+QString strmid(const QByteArray& text,const QString& left,const QString& right);
+
+class Widget : public QWidget
+{
     Q_OBJECT
 
 public:
-    Widget(QWidget* parent = nullptr);
+    Widget(QWidget *parent = nullptr);
     ~Widget();
 
-private slots:
-    void on_btn_run_clicked();
-
-private:
-    Ui::Widget* ui;
-
     void initUI(void);
-    void initVal(void);
+
+    bool eventFilter(QObject* watched, QEvent* event);
+
+
+
 
     void (QComboBox::*pSIGNAL_COMBOBOX_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
 
-    /************** interface **************/
+    QRegExpValidator *pINPUT_RANGE_LIMIT = new QRegExpValidator(QRegExp("^[1-9]$|(^[1-9][0-9]$)|(^[1-9][0-9][0-9]$)|(^[1-9][0-9][0-9][0-9]$)|(^[1-6][0-5][0-5][0-3][0-5]$)"), this); // 1~65535
 
-    QSerialPort* m_Serial = nullptr;
+    /************** interfaces **************/
 
-    // client -> cli, server -> ser
+    // serial port
+
+    QSerialPort* m_SerialPort = nullptr;
+
+    void initSerialPort(void);
+    void scanSerialPort(void);
+    bool openSerialPort(void);
+    void closeSerialPort(void);
+
+    // tcp server (client -> cli, server -> ser)
+
+    QString m_LocalIP;
     QTcpServer*        m_TcpServer = nullptr;
     QList<QTcpSocket*> m_TcpSerClis;  // Connections
 
+    void initTcpServer(void);
+    bool openTcpServer(void);
+    void closeTcpServer(void);
+
+    // tcp client
+
     QTcpSocket* m_TcpClient    = nullptr;
     QTimer*     m_TmrReconnect = nullptr;
+    void initTcpClient(void);
+    bool openTcpClient(void);
+    void closeTcpClient(void);
+
+    // udp
 
     QUdpSocket* m_Udp = nullptr;
+    void initUdp(void);
+    bool openUdp(void);
+    void closeUdp(void);
 
-    void ScanSerialPort(void);
-    bool SendData(QByteArray data);
-    bool m_RawDataMd=false;
+    // 过滤器
 
-    /************** statistics **************/
+    QMenu* m_MenuDataFilter = nullptr; // @ tree_datafilter
+    QVector<uyk_treeitem_datafilter*> m_datafilters;
+    void initDataFilter(void);
 
+    // 图表
+
+    QVector<uyk_treeitem_channel*> m_channels;
+
+    // 字节统计
     size_t m_BytesOfRecv = 0;
     size_t m_BytesOfSend = 0;
-
-    /************** menu **************/
 
     QMenu* m_MenuOfRecv    = nullptr;  // @ input_recv
     QMenu* m_MenuOfSend    = nullptr;  // @ input_send
     QMenu* m_MenuOfSendBtn = nullptr;  // @ btn_send
 
-    /************** Continuous sending **************/
+    // 缓冲区
 
+
+    QByteArray m_CmdBuf;
+    void handleCommand(const QByteArray& recv);
+    bool sendData(QByteArray data);
+
+    // 连续发送
     QWidget*  m_CntrRepeatSend;  // container -> cntr
     QSpinBox* m_SpnRepeatDelay = nullptr;
     QSpinBox* m_SpnRepeatTimes = nullptr;
 
-    /********** hotkey **********/
+    bool m_RawDataMd=false;
+    bool m_TimestampMd=false;
 
-    QShortcut* m_hkShowInterface;
+private slots:
+    void on_btn_run_clicked();
 
-    /********** command **********/
-
-    size_t m_LenOfCmdPrefix = 0;
-
-    QByteArray m_CmdBuffer = "";       // 缓冲区
-    QString    m_CmdPrefix = "";  // 指令前缀 "##{"
-    QString    m_CmdPuffix = "\n";     // 指令后缀 "}##"
-
-    bool AnalyzeCmd(QByteArray recv);
-    bool HandleCmd(QString cmd);
-
-    bool eventFilter(QObject* watched, QEvent* event);
+private:
+    Ui::Widget *ui;
 };
-#endif  // WIDGET_H
+
+
+#endif // WIDGET_H

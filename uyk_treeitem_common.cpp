@@ -40,5 +40,6 @@ QDoubleSpinBox* uyk_formlayout_w::add_dspn(const QString& text, double value) {
     return p;
 }
 
+void uyk_formlayout_w::add_row(QWidget* w) { m_layout->setWidget(m_layout->rowCount(), QFormLayout::ItemRole::SpanningRole, w); }
 void uyk_formlayout_w::add_row(const QString& text, QLayout* l) { m_layout->addRow(text, l); }
 void uyk_formlayout_w::add_row(const QString& text, QWidget* w) { m_layout->addRow(text, w); }

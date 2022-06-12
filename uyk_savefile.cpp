@@ -1,6 +1,5 @@
 #include "uyk_savefile.h"
 
-
 bool savefile(QString suffix, std::function<void(QTextStream&)> pFunc) {
     // 选择文件保存路径
     QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);

@@ -1,6 +1,6 @@
-#include "uyk_treeitem_chan.h"
+#include "uyk_treeitem_channel.h"
 
-uyk_treeitem_chan::uyk_treeitem_chan(QTreeWidget* parent, const QString& title) : QTreeWidgetItem(parent) {
+uyk_treeitem_channel::uyk_treeitem_channel(QTreeWidget* parent, const QString& title) : QTreeWidgetItem(parent) {
     setText(0, title);
 
     setCheckState(0, Qt::Checked);
@@ -16,13 +16,13 @@ uyk_treeitem_chan::uyk_treeitem_chan(QTreeWidget* parent, const QString& title) 
     // 水平分割线
     m_layout->add_hline();
 
-    // 曲线画笔参数
-    m_layout->add_row(QStr("lineColor:"), m_input_LineColor = new QLineEdit(m_layout));
-    m_layout->add_row(QStr("lineWidth:"), m_spn_LineWidth = new QDoubleSpinBox(m_layout));
+    // 显示/隐藏
+
+    m_layout->add_row(QStr("Visible:"), m_chk_visible = new QCheckBox(m_layout));
 
     // 水平分割线
     m_layout->add_hline();
 
     // 曲线数据保存按钮
-    m_layout->add_row(QStr(""), m_btn_SaveToCSV = new QPushButton("save"));
+    m_layout->add_row(QStr(""), m_btn_SaveToCSV = new QPushButton(QStr("save"), m_layout));
 }

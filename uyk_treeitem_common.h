@@ -18,6 +18,7 @@ public:
 
     void add_hline(void);  // 水平分割线
 
+    void add_row(QWidget* w);
     void add_row(const QString& text, QWidget* w);
     void add_row(const QString& text, QLayout* l);
 

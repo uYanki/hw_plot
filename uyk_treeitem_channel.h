@@ -6,9 +6,9 @@
 
 #include <QHBoxLayout>
 
+#include <QCheckBox>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QCheckBox>
 
 #include "uyk_treeitem_common.h"
 
@@ -25,7 +25,6 @@ public:
     QPushButton*    m_btn_SaveToCSV;
     QDoubleSpinBox* m_spn_yScale;
     QCheckBox*      m_chk_visible;
-
 };
 
 #endif  // UYK_TREEITEM_CHAN_H

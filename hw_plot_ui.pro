@@ -17,6 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
+    qcustomplot.cpp \
+    uyk_baseplot.cpp \
     uyk_custom_action.cpp \
     uyk_savefile.cpp \
     uyk_treeitem_channel.cpp \
@@ -25,6 +27,8 @@ SOURCES += \
     widget.cpp
 
 HEADERS += \
+    qcustomplot.h \
+    uyk_baseplot.h \
     uyk_custom_action.h \
     uyk_savefile.h \
     uyk_treeitem_channel.h \
@@ -42,5 +46,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES +=
 
-RESOURCES += \
-    res.qrc
+RESOURCES +=
