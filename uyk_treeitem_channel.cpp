@@ -12,6 +12,11 @@ uyk_treeitem_channel::uyk_treeitem_channel(QTreeWidget* parent, const QString& t
 
     // 曲线增益
     m_spn_yScale = m_layout->add_dspn(QStr("yScale:"), 1.0);
+    m_spn_yScale->setRange(0,10000);
+
+    // 垂直偏移
+    m_spn_yOffset = m_layout->add_dspn(QStr("yOffset:"));
+    m_spn_yOffset->setRange(0,99999);
 
     // 水平分割线
     m_layout->add_hline();

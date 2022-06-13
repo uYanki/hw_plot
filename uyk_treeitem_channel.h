@@ -24,6 +24,7 @@ public:
 
     QPushButton*    m_btn_SaveToCSV;
     QDoubleSpinBox* m_spn_yScale;
+    QDoubleSpinBox* m_spn_yOffset;
     QCheckBox*      m_chk_visible;
 };
 

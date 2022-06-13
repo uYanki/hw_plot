@@ -22,7 +22,7 @@ public:
     void add_row(const QString& text, QWidget* w);
     void add_row(const QString& text, QLayout* l);
 
-    QDoubleSpinBox* add_dspn(const QString& text, double value = 0);
+    QDoubleSpinBox* add_dspn(const QString& text, double value = 0.0);
 
 private:
     QFormLayout* const m_layout;

@@ -299,15 +299,13 @@ void uyk_baseplot::addVals(const QVector<double>& values) {
         ++m_index1;
 
     } else {
-        double src_x[128], src_y[128], dst_x[128], dst_y[128];
+        double src_x[128], src_y[128]={0}, dst_x[128]={0}, dst_y[128]={0};
 
+        graph_val->data().data()->clear();
         for (int i = 0; i < 128; ++i) {
             graph_org->data()->add(QCPGraphData(++m_index2, values.at(i)));
-
             src_x[i] = values.at(i);
-            src_y[i] = 0;
-            dst_x[i] = 0;
-            dst_y[i] = 0;
+            graph_val->data()->add(QCPBarsData(i + 1, values.at(i)));
         }
 
         fft(src_x, src_y, dst_x, dst_y, 7);
@@ -399,6 +397,7 @@ void uyk_baseplot::updateTips() {
     if (cnt == 0) return;
     QString tip = "x: " + QString::number(x_val, 10, 3) + "\n";
 
+
     if (mMode) {
         graph_val->rescaleValueAxis(true);
         graph_val->keyAxis()->setRange(0, graphs_org.length() + 1);
@@ -409,9 +408,11 @@ void uyk_baseplot::updateTips() {
             if (graph != graphs_org.last()) tip += "\n";
         }
     } else {
+        graph_val->rescaleValueAxis(true);
+        graph_val->keyAxis()->setRange(0, graph_val->data().data()->size() + 1);
+
         float y_val = graph_org->data()->at(x_val)->value;
         tip += graph_org->name() + ": " + QString::number(y_val);
-
         graph_fft->rescaleAxes(true);
     }
 

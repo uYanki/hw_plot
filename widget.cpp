@@ -35,6 +35,7 @@ Widget::Widget(QWidget* parent)
     initTcpClient();
 
     initDataFilter();
+    initChanTree();
 
     ui->plot->setMode(false);
     ui->plot->yAxis->setRange(-6000,6000);
@@ -316,11 +317,6 @@ mSocket->writeDatagram(ui->textEdit->toPlainText().toUtf8(),QHostAddress("192.16
 */
 }
 
-void Widget::closeUdp()
-{
-
-}
-
 void Widget::initDataFilter()
 {
     // menu
@@ -351,6 +347,37 @@ void Widget::initDataFilter()
     // ui->tree_datafilter->setEditTriggers(QTreeWidget::EditTrigger::EditKeyPressed); // F2
 
 }
+
+void Widget::initChanTree()
+{
+    // menu
+
+    m_MenuChannel = new QMenu(this);
+
+    m_MenuChannel->addAction("expand all",[&](){foreach(auto i,m_channels) i->setExpanded(true);});
+    m_MenuChannel->addAction("collapse all",[&](){foreach(auto i,m_channels) i->setExpanded(false);});
+
+    m_MenuChannel->addSeparator();
+    m_MenuChannel->addAction("clear",[&](){foreach(auto i,m_channels) i->setExpanded(false);});
+
+     m_MenuChannel->addSeparator();
+     m_MenuChannel->addAction("save all",[&](){});
+
+     m_MenuChannel->addAction("clear",[&](){foreach(auto i,m_channels) i->setExpanded(false);});
+
+
+    // tree
+
+    ui->tree_channel->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+    connect(ui->tree_channel,&QTreeWidget::customContextMenuRequested,[&](){m_MenuChannel->exec(QCursor::pos());});
+
+}
+
+void Widget::closeUdp()
+{
+
+}
+
 
 QString strmid(const QByteArray& text,const QString& left,const QString& right){
     int start =left.isEmpty()?0:text.indexOf(left);
@@ -392,15 +419,7 @@ void Widget::handleCommand(const QByteArray &recv){
 
     m_CmdBuf.clear(); // 清除缓冲区
 
-    // 显示接收的命令
-    if(!m_RawDataMd){
-        if(m_TimestampMd){
-            ui->input_recv->moveCursor(QTextCursor::End);
-            ui->input_recv->insertPlainText(QTime::currentTime().toString("[hh:mm:ss] "));
-        }
-        ui->input_recv->moveCursor(QTextCursor::End);
-        ui->input_recv->insertPlainText(cmd);
-    }
+
 
     QStringList vals_recv;
     if(ui->input_dataformat_delimiter->text().isEmpty()){
@@ -415,12 +434,33 @@ void Widget::handleCommand(const QByteArray &recv){
         if(m_channels.size()<i+1)  m_channels.append(new uyk_treeitem_channel (ui->tree_channel,QStr("channel %1").arg(m_channels.size()+1)));
 
         if(m_channels.at(i)->checkState(0)==Qt::CheckState::Checked){
-            vals<<vals_recv.at(i).toDouble()*m_channels.at(i)->m_spn_yScale->value();
+            vals<<(vals_recv.at(i).toDouble()*m_channels.at(i)->m_spn_yScale->value()+m_channels.at(i)->m_spn_yOffset->value());
         }else{
             vals<<vals_recv.at(i).toDouble();
         }
 
     }
+
+
+    // 显示接收的命令
+    if(!m_RawDataMd){
+        if(m_TimestampMd){
+            ui->input_recv->moveCursor(QTextCursor::End);
+            ui->input_recv->insertPlainText(QTime::currentTime().toString("[hh:mm:ss] "));
+        }
+        ui->input_recv->moveCursor(QTextCursor::End);
+        QString s;
+
+
+        for(int i=0;i<vals.length()-1;++i){
+            s+=QString::number(vals.at(i));
+            s+=ui->input_dataformat_delimiter->text();
+        }
+        s+=QString::number(vals.last());
+        s+="\n";
+        ui->input_recv->insertPlainText(s);
+    }
+
 
     ui->plot->addVals(vals);
     // ui->plot->xAxis->setRange((ui->plot->m_index1 > 2000) ? (ui->plot->m_index1 - 2000) : 0, ui->plot->m_index1);

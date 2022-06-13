@@ -105,6 +105,8 @@ public:
     // 图表
 
     QVector<uyk_treeitem_channel*> m_channels;
+    QMenu* m_MenuChannel = nullptr; // @ tree_channel
+    void initChanTree(void);
 
     // 字节统计
     size_t m_BytesOfRecv = 0;
@@ -128,6 +130,8 @@ public:
 
     bool m_RawDataMd=false;
     bool m_TimestampMd=false;
+
+
 
 private slots:
     void on_btn_run_clicked();
