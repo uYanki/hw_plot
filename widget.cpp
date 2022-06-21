@@ -37,7 +37,8 @@ Widget::Widget(QWidget* parent)
     initDataFilter();
     initChanTree();
 
-    ui->plot->setMode(false);
+
+    // ui->plot->setMode(false);
     ui->plot->yAxis->setRange(-6000,6000);
 
 }
@@ -173,10 +174,11 @@ void Widget::initSerialPort() {
         if (e != QSerialPort::SerialPortError::NoError){
             ui->btn_run->setChecked(!ui->btn_run->isChecked());
             on_btn_run_clicked();
-            delay_ms(100); // 延时再扫描串口, 等系统反应过来
+            delay_ms(200); // 延时再扫描串口, 等系统反应过来
             scanSerialPort();
         }
     });
+
 
 }
 
@@ -216,6 +218,7 @@ void Widget::initTcpServer() {
 
     connect(m_TcpServer, &QTcpServer::newConnection, [&]() {
         while (m_TcpServer->hasPendingConnections()) {
+
             QTcpSocket* client = m_TcpServer->nextPendingConnection();
             m_TcpSerClis.append(client);
             QString client_info = QString("%1:%2").arg(client->peerAddress().toString()).arg(client->peerPort());
@@ -407,8 +410,8 @@ void Widget::handleCommand(const QByteArray &recv){
     }
 
     // tcp服务器转发
-    if(ui->chk_tcp_server_transmit->checkState()==Qt::CheckState::Checked)
-        sendData(m_CmdBuf);
+//    if(ui->chk_tcp_server_transmit->checkState()==Qt::CheckState::Checked)
+//        sendData(m_CmdBuf);
 
     if (!recv.contains('\n')) return; // 按行读取
 
@@ -420,7 +423,6 @@ void Widget::handleCommand(const QByteArray &recv){
     m_CmdBuf.clear(); // 清除缓冲区
 
 
-
     QStringList vals_recv;
     if(ui->input_dataformat_delimiter->text().isEmpty()){
         vals_recv << cmd;
@@ -428,7 +430,7 @@ void Widget::handleCommand(const QByteArray &recv){
         vals_recv = cmd.split(ui->input_dataformat_delimiter->text(),QString::SkipEmptyParts);
     }
 
-    vals_recv.removeLast();
+    // vals_recv.removeLast();
     QVector<double> vals;
     for(int i= 0;i<vals_recv.size();++i){
         if(m_channels.size()<i+1)  m_channels.append(new uyk_treeitem_channel (ui->tree_channel,QStr("channel %1").arg(m_channels.size()+1)));
@@ -463,9 +465,6 @@ void Widget::handleCommand(const QByteArray &recv){
 
 
     ui->plot->addVals(vals);
-    // ui->plot->xAxis->setRange((ui->plot->m_index1 > 2000) ? (ui->plot->m_index1 - 2000) : 0, ui->plot->m_index1);
-    ui->plot->xAxis->setRange((ui->plot->m_index2> 2000) ? (ui->plot->m_index2 - 2000) : 0, ui->plot->m_index2);
-
 
 }
 

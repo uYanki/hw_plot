@@ -10,7 +10,7 @@ class uyk_custom_action : public QWidgetAction {
     Q_OBJECT
 public:
     explicit uyk_custom_action(std::function<QWidget*(QWidget* parent)> cbk_init /*控件初始化函数*/, QWidget* parent = nullptr);
-
+    explicit uyk_custom_action(QString title,bool checkable,bool checked=false,QWidget* parent=nullptr);
 protected:
     QWidget* createWidget(QWidget* parent);
 

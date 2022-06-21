@@ -11,7 +11,9 @@
 
 #include "qcustomplot.h"
 
+#include "fft.h"
 #include "uyk_savefile.h"
+#include "uyk_custom_action.h"
 
 #define QStr QStringLiteral
 
@@ -75,7 +77,10 @@ public:
     QCPBars*         graph_val;
 
     void addVals(const QVector<double>& vals);
-    void scaleAxes(bool keyAxis = true, bool valAxis = true);
+    void scaleAxes();
+
+    bool m_autorescale=false;
+    size_t m_point_count = 2000; // 显示的点数
 
     // **************************************** //
 

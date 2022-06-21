@@ -54,10 +54,9 @@ public:
     bool eventFilter(QObject* watched, QEvent* event);
 
 
-
-
     void (QComboBox::*pSIGNAL_COMBOBOX_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
 
+    // 输入框范围限制（0~65535）
     QRegExpValidator *pINPUT_RANGE_LIMIT = new QRegExpValidator(QRegExp("^[1-9]$|(^[1-9][0-9]$)|(^[1-9][0-9][0-9]$)|(^[1-9][0-9][0-9][0-9]$)|(^[1-6][0-5][0-5][0-3][0-5]$)"), this); // 1~65535
 
     /************** interfaces **************/
@@ -116,8 +115,7 @@ public:
     QMenu* m_MenuOfSend    = nullptr;  // @ input_send
     QMenu* m_MenuOfSendBtn = nullptr;  // @ btn_send
 
-    // 缓冲区
-
+    // 指令缓冲区
 
     QByteArray m_CmdBuf;
     void handleCommand(const QByteArray& recv);

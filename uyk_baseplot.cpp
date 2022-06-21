@@ -1,48 +1,68 @@
 #include "uyk_baseplot.h"
 
-// https://whycan.com/t_2804.html
-void fft(const double* src_x, const double* src_y, double* dst_x, double* dst_y, int k) {
-    int     i, n;
-    double  temp, temp_x, temp_y;
-    double* buffer;
-    if (0 == k) {
-        *dst_x = *src_x;
-        *dst_y = *src_y;
-        return;
-    }
-    n      = 1 << (k - 1);
-    buffer = (double*)malloc(4 * n * sizeof(double));
-    for (i = 0; i < n; i++) {
-        buffer[i]         = src_x[i * 2];
-        buffer[i + n]     = src_y[i * 2];
-        buffer[i + 2 * n] = src_x[i * 2 + 1];
-        buffer[i + 3 * n] = src_y[i * 2 + 1];
-    }
-    fft((const double*)buffer + 2 * n, (const double*)buffer + 3 * n, dst_x, dst_y, k - 1);
-    fft((const double*)buffer, (const double*)buffer + n, (double*)buffer + 2 * n, (double*)buffer + 3 * n, k - 1);
-    for (i = 0; i < n; i++) {
-        temp          = i * M_PI / n;
-        temp_x        = cos(temp);
-        temp_y        = sin(temp);
-        buffer[i]     = dst_y[i] * temp_y + dst_x[i] * temp_x;
-        buffer[i + n] = dst_y[i] * temp_x - dst_x[i] * temp_y;
-        dst_x[i]      = buffer[i + 2 * n] + buffer[i];
-        dst_y[i]      = buffer[i + 3 * n] + buffer[i + n];
-        dst_x[i + n]  = buffer[i + 2 * n] - buffer[i];
-        dst_y[i + n]  = buffer[i + 3 * n] - buffer[i + n];
-    }
-    free(buffer);
-}
-
 uyk_baseplot::uyk_baseplot(QWidget* parent) : QCustomPlot(parent) {
     initAxes();
     initLegend();
     initGraph();
     initAction();
 
+    // 颜色设置 https://blog.csdn.net/u014252478/article/details/79928433
+
     // right-click context menu 右键菜单
     m_menu = new QMenu(this);
     setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+
+    m_menu->addAction(QStr("resscale all"), [&]() {
+        axisrect_org->axis(QCPAxis::atBottom)->rescale();
+        // graph_org->rescaleAxes();
+        graph_val->rescaleAxes();
+        graph_fft->rescaleKeyAxis();
+        graph_fft->rescaleValueAxis();
+    });
+
+    m_menu->addAction("fft mode", [&]() {
+              mMode = !mMode;
+              plotLayout()->setRowStretchFactor((int)!mMode, 0.75);
+              plotLayout()->setRowStretchFactor((int)mMode, 0.25);
+          })
+        ->setCheckable(true);
+
+    QMenu* menu_pointcount = new QMenu("range(x)", this);
+    m_menu->addMenu(menu_pointcount);
+    menu_pointcount->addAction("100", [&]() { m_point_count = 100; });
+    menu_pointcount->addAction("500", [&]() { m_point_count = 500; });
+    menu_pointcount->addAction("1000", [&]() { m_point_count = 1000; });
+    menu_pointcount->addAction("2000", [&]() { m_point_count = 2000; });
+    menu_pointcount->addAction("4000", [&]() { m_point_count = 4000; });
+    menu_pointcount->addAction("6000", [&]() { m_point_count = 6000; });
+
+    QMenu* menu_yRrange = new QMenu("range(y)", this);
+    menu_yRrange->addAction("auto(fft)", [&]() { m_autorescale = !m_autorescale; })->setCheckable(true);
+    m_menu->addMenu(menu_yRrange);
+    menu_yRrange->addAction("int8", [&]() { graph_org->valueAxis()->setRange(-128, 127); });
+    menu_yRrange->addAction("int10", [&]() { graph_org->valueAxis()->setRange(-512, 511); });
+    menu_yRrange->addAction("int12", [&]() { graph_org->valueAxis()->setRange(-2048, 2047); });
+    menu_yRrange->addAction("int16", [&]() { graph_org->valueAxis()->setRange(-32768, 32767); });
+    menu_yRrange->addAction("int32", [&]() { graph_org->valueAxis()->setRange(-2147483648, 2147483647); });
+    menu_yRrange->addAction("uint8", [&]() { graph_org->valueAxis()->setRange(0, 255); });
+    menu_yRrange->addAction("uint10", [&]() { graph_org->valueAxis()->setRange(0, 1023); });
+    menu_yRrange->addAction("uint12", [&]() { graph_org->valueAxis()->setRange(0, 4095); });
+    menu_yRrange->addAction("uint16", [&]() { graph_org->valueAxis()->setRange(0, 65535); });
+    menu_yRrange->addAction("uint32", [&]() { graph_org->valueAxis()->setRange(0, 4294967295); });
+
+    QMenu* menu_save = new QMenu("save", this);
+    m_menu->addMenu(menu_save);
+    menu_save->addAction("save org", [&]() { ; });
+    menu_save->addAction("save fft", [&]() { ; });
+    menu_save->addAction("save val", [&]() { ; });
+
+    m_menu->addAction("clear", [&]() {
+        graph_org->data().data()->clear();
+        graph_val->data().data()->clear();
+        graph_fft->data().data()->clear();
+        foreach (auto g, graphs_org)
+            g->data().data()->clear();
+    });
 
     // 右键框选区域
     m_selection = new QRubberBand(QRubberBand::Rectangle, this);
@@ -71,8 +91,8 @@ void uyk_baseplot::initAxes() {
     subLayout->addElement(0, 0, axisrect_val = new QCPAxisRect(this, false));  // at left
     subLayout->addElement(0, 1, axisrect_fft = new QCPAxisRect(this, false));  // at right
 
-    plotLayout()->setRowStretchFactor(1, 0.75);
-    plotLayout()->setRowStretchFactor(0, 0.25);
+    plotLayout()->setRowStretchFactor(0, 0.75);
+    plotLayout()->setRowStretchFactor(1, 0.25);
     subLayout->setColumnStretchFactor(0, 0.3);
     subLayout->setColumnStretchFactor(1, 0.7);
 
@@ -110,10 +130,9 @@ void uyk_baseplot::initAxes() {
 
     /************ setup variables ************/
 
-    xAxis  = axisrect_org->axis(QCPAxis::atBottom);
-    yAxis  = axisrect_org->axis(QCPAxis::atLeft);
-    xAxis2 = axisrect_org->axis(QCPAxis::atTop);
-    ;
+    xAxis      = axisrect_org->axis(QCPAxis::atBottom);
+    yAxis      = axisrect_org->axis(QCPAxis::atLeft);
+    xAxis2     = axisrect_org->axis(QCPAxis::atTop);
     yAxis2     = axisrect_org->axis(QCPAxis::atRight);
     yAxisExtra = axisrect_org->axis(QCPAxis::atLeft, 1);
 
@@ -152,6 +171,7 @@ void uyk_baseplot::initLegend() {
 }
 
 void uyk_baseplot::initGraph() {
+    graphs_org.clear();
     // create graphs
 
     /************ create graphs ************/
@@ -279,14 +299,14 @@ void uyk_baseplot::setMode(bool mode) {
 }
 
 void uyk_baseplot::addVals(const QVector<double>& values) {
-    static Qt::GlobalColor color_of_series[6] = {Qt::red, Qt::darkGreen, Qt::blue, Qt::darkCyan, Qt::magenta, Qt::darkYellow};  // 曲线颜色
+    // static Qt::GlobalColor color_of_series[6] = {Qt::red, Qt::darkGreen, Qt::blue, Qt::darkCyan, Qt::magenta, Qt::darkYellow};  // 曲线颜色
 
     // addData & setData will alloc new buffer, and then copy old buffer to new buffer, so don't use them
     if (mMode) {
         for (int i = graphs_org.length(); i < values.length(); ++i) {  // auto add graph
             QCPGraph* p = addGraph(axisrect_org->axis(QCPAxis::atBottom), axisrect_org->axis(QCPAxis::atLeft));
             p->setName(tr("line%1").arg(i + 1));
-            p->setPen(QPen(QColor(color_of_series[i])));
+            p->setPen(QPen(QColor::fromHsv(360 / values.length() * i, 100, 100)));
             graphs_org.append(p);
         }
 
@@ -299,7 +319,9 @@ void uyk_baseplot::addVals(const QVector<double>& values) {
         ++m_index1;
 
     } else {
-        double src_x[128], src_y[128]={0}, dst_x[128]={0}, dst_y[128]={0};
+        if (values.length() < 128) return;
+
+        double src_x[128], src_y[128] = {0}, dst_x[128] = {0}, dst_y[128] = {0};
 
         graph_val->data().data()->clear();
         for (int i = 0; i < 128; ++i) {
@@ -314,25 +336,6 @@ void uyk_baseplot::addVals(const QVector<double>& values) {
             graph_fft->data()->add(QCPGraphData(i, qSqrt(dst_x[i] * dst_x[i] + dst_y[i] * dst_y[i])));
 
         replot();
-    }
-}
-
-void uyk_baseplot::scaleAxes(bool keyAxis, bool valAxis) {
-    if (mMode) {
-        //        if (keyAxis)
-        //            axisrect_org->axis(QCPAxis::atBottom)->rescale();
-
-        //        if (valAxis)
-        //            foreach (auto graph, graphs_org)
-        //                graph->rescaleValueAxis(true);
-
-        // graph_val->valueAxis()->setRange(range.lower * 1.2, range.upper * 1.2);
-
-    } else {
-        graph_org->rescaleAxes(true);
-
-        if (keyAxis) graph_fft->rescaleKeyAxis();
-        if (valAxis) graph_fft->rescaleValueAxis(true);
     }
 }
 
@@ -369,6 +372,17 @@ void uyk_baseplot::initTips() {
 void uyk_baseplot::updateTips() {
     QPoint pos = mapFromGlobal(QCursor::pos());
 
+    if (mMode) {
+        graph_val->rescaleValueAxis(true);
+        graph_val->keyAxis()->setRange(0, graph_val->data().data()->size() + 1);
+        xAxis->setRange((m_index1 > m_point_count) ? (m_index1 - m_point_count) : 0, m_index1);
+    } else {
+        xAxis->setRange((m_index2 > m_point_count) ? (m_index2 - m_point_count) : 0, m_index2);
+        graph_val->rescaleValueAxis(true);
+        graph_val->keyAxis()->setRange(0, graph_val->data().data()->size() + 1);
+        if (m_autorescale) graph_fft->rescaleAxes(true);
+    }
+
     if (!geometry().contains(pos)) {  // 鼠标不在控件内
         // 隐藏十字线
         m_hLine->setVisible(false);
@@ -397,23 +411,16 @@ void uyk_baseplot::updateTips() {
     if (cnt == 0) return;
     QString tip = "x: " + QString::number(x_val, 10, 3) + "\n";
 
-
     if (mMode) {
-        graph_val->rescaleValueAxis(true);
-        graph_val->keyAxis()->setRange(0, graphs_org.length() + 1);
-
         foreach (auto graph, graphs_org) {
             float y_val = graph->data()->at(x_val)->value;
             tip += graph->name() + ": " + QString::number(y_val);
             if (graph != graphs_org.last()) tip += "\n";
         }
-    } else {
-        graph_val->rescaleValueAxis(true);
-        graph_val->keyAxis()->setRange(0, graph_val->data().data()->size() + 1);
 
+    } else {
         float y_val = graph_org->data()->at(x_val)->value;
         tip += graph_org->name() + ": " + QString::number(y_val);
-        graph_fft->rescaleAxes(true);
     }
 
     m_valtip->setText(tip);
