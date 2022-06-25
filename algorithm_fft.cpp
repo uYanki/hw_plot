@@ -1,6 +1,7 @@
-#include "fft.h"
+#include "algorithm_fft.h"
 
 // https://whycan.com/t_2804.html
+
 void fft(const double* src_x, const double* src_y, double* dst_x, double* dst_y, int k) {
     int     i, n;
     double  temp, temp_x, temp_y;

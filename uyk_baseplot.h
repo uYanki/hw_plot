@@ -11,7 +11,7 @@
 
 #include "qcustomplot.h"
 
-#include "fft.h"
+#include "algorithm_fft.h"
 #include "uyk_savefile.h"
 #include "uyk_custom_action.h"
 

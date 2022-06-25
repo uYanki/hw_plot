@@ -16,29 +16,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    fft.cpp \
+    algorithm_fft.cpp \
     main.cpp \
     qcustomplot.cpp \
+    tab_interfaces.cpp \
     uyk_baseplot.cpp \
     uyk_custom_action.cpp \
+    uyk_delayms.cpp \
     uyk_savefile.cpp \
     uyk_treeitem_channel.cpp \
+    uyk_treeitem_command.cpp \
     uyk_treeitem_common.cpp \
     uyk_treeitem_datafilter.cpp \
     widget.cpp
 
 HEADERS += \
-    fft.h \
+    algorithm_fft.h \
     qcustomplot.h \
+    tab_interfaces.h \
     uyk_baseplot.h \
     uyk_custom_action.h \
+    uyk_delayms.h \
     uyk_savefile.h \
     uyk_treeitem_channel.h \
+    uyk_treeitem_command.h \
     uyk_treeitem_common.h \
     uyk_treeitem_datafilter.h \
     widget.h
 
 FORMS += \
+    tab_interfaces.ui \
     widget.ui
 
 # Default rules for deployment.

@@ -5,6 +5,7 @@
 #include <QWidget>
 
 #include <QComboBox>
+#include <QCheckBox>
 #include <QLineEdit>
 
 #include "uyk_treeitem_common.h"

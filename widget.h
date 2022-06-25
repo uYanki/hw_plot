@@ -11,28 +11,16 @@
 #include <QMenu>
 #include <QComboBox>
 
-#include <QMessageBox>
-
-#include <QMouseEvent>
-
-#include <QClipboard>
-
-/* serial */
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
-
-/* tcp & udp */
-#include <QHostInfo>
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QUdpSocket>
 
 
 #include "uyk_savefile.h"
 #include "uyk_treeitem_channel.h"
 #include "uyk_treeitem_datafilter.h"
+#include "uyk_treeitem_command.h"
 #include "uyk_baseplot.h"
 #include "uyk_custom_action.h"
+
+#include "tab_interfaces.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -51,49 +39,7 @@ public:
 
     void initUI(void);
 
-    bool eventFilter(QObject* watched, QEvent* event);
-
-
-    void (QComboBox::*pSIGNAL_COMBOBOX_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
-
-    // 输入框范围限制（0~65535）
-    QRegExpValidator *pINPUT_RANGE_LIMIT = new QRegExpValidator(QRegExp("^[1-9]$|(^[1-9][0-9]$)|(^[1-9][0-9][0-9]$)|(^[1-9][0-9][0-9][0-9]$)|(^[1-6][0-5][0-5][0-3][0-5]$)"), this); // 1~65535
-
     /************** interfaces **************/
-
-    // serial port
-
-    QSerialPort* m_SerialPort = nullptr;
-
-    void initSerialPort(void);
-    void scanSerialPort(void);
-    bool openSerialPort(void);
-    void closeSerialPort(void);
-
-    // tcp server (client -> cli, server -> ser)
-
-    QString m_LocalIP;
-    QTcpServer*        m_TcpServer = nullptr;
-    QList<QTcpSocket*> m_TcpSerClis;  // Connections
-
-    void initTcpServer(void);
-    bool openTcpServer(void);
-    void closeTcpServer(void);
-
-    // tcp client
-
-    QTcpSocket* m_TcpClient    = nullptr;
-    QTimer*     m_TmrReconnect = nullptr;
-    void initTcpClient(void);
-    bool openTcpClient(void);
-    void closeTcpClient(void);
-
-    // udp
-
-    QUdpSocket* m_Udp = nullptr;
-    void initUdp(void);
-    bool openUdp(void);
-    void closeUdp(void);
 
     // 过滤器
 
@@ -107,19 +53,13 @@ public:
     QMenu* m_MenuChannel = nullptr; // @ tree_channel
     void initChanTree(void);
 
-    // 字节统计
-    size_t m_BytesOfRecv = 0;
-    size_t m_BytesOfSend = 0;
+
+
 
     QMenu* m_MenuOfRecv    = nullptr;  // @ input_recv
     QMenu* m_MenuOfSend    = nullptr;  // @ input_send
     QMenu* m_MenuOfSendBtn = nullptr;  // @ btn_send
 
-    // 指令缓冲区
-
-    QByteArray m_CmdBuf;
-    void handleCommand(const QByteArray& recv);
-    bool sendData(QByteArray data);
 
     // 连续发送
     QWidget*  m_CntrRepeatSend;  // container -> cntr
@@ -127,12 +67,15 @@ public:
     QSpinBox* m_SpnRepeatTimes = nullptr;
 
     bool m_RawDataMd=false;
-    bool m_TimestampMd=false;
 
 
+    tab_interfaces* m_interfaces;
+    void initInterfaces(void);
 
-private slots:
-    void on_btn_run_clicked();
+
+    // @ input_recv
+    bool m_TimestampMd=false; // 时间戳
+    void appendText(const QString& content);
 
 private:
     Ui::Widget *ui;
