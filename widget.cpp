@@ -55,7 +55,7 @@ void Widget::initUI() {
     ui->verticalLayout_3->addWidget(spl2);
     spl2->setHandleWidth(1);  // 分割条宽度
 
-    spl2->addWidget(ui->plot);
+    spl2->addWidget(ui->plot_multicurve);
     spl2->addWidget(ui->tabWidget_2);
 
     spl2->setSizes(QList<int>() << 1 << 0);  // 隐藏收发区
@@ -193,26 +193,33 @@ void Widget::initInterfaces() {
 
         // 添加曲线点
 
-        QStringList vals_recv;
-        if (ui->input_dataformat_delimiter->text().isEmpty()) {
-            vals_recv << recv;
-        } else {
-            vals_recv = QString(recv).split(ui->input_dataformat_delimiter->text(), QString::SkipEmptyParts);
-        }
 
-        // vals_recv.removeLast();
         QVector<double> vals;
-        for (int i = 0; i < vals_recv.size(); ++i) {
-            if (m_channels.size() < i + 1) m_channels.append(new uyk_treeitem_channel(ui->tree_channel, QStr("channel %1").arg(m_channels.size() + 1)));
+        QStringList strlist = QString(recv).split(ui->input_dataformat_delimiter->text(),Qt::KeepEmptyParts);
+        foreach(auto s,strlist) vals.append(s.toDouble());
 
-            if (m_channels.at(i)->checkState(0) == Qt::CheckState::Checked) {
-                vals << (vals_recv.at(i).toDouble() * m_channels.at(i)->m_spn_yScale->value() + m_channels.at(i)->m_spn_yOffset->value());
-            } else {
-                vals << vals_recv.at(i).toDouble();
-            }
-        }
+        ui->plot_multicurve->addVals(vals);
 
-        ui->plot->addVals(vals);
+//        QStringList vals_recv;
+//        if (ui->input_dataformat_delimiter->text().isEmpty()) {
+//            vals_recv << recv;
+//        } else {
+//            vals_recv = QString(recv).split(ui->input_dataformat_delimiter->text(), QString::SkipEmptyParts);
+//        }
+
+//        // vals_recv.removeLast();
+//        QVector<double> vals;
+//        for (int i = 0; i < vals_recv.size(); ++i) {
+//            if (m_channels.size() < i + 1) m_channels.append(new uyk_treeitem_channel(ui->tree_channel, QStr("channel %1").arg(m_channels.size() + 1)));
+
+//            if (m_channels.at(i)->checkState(0) == Qt::CheckState::Checked) {
+//                vals << (vals_recv.at(i).toDouble() * m_channels.at(i)->m_spn_yScale->value() + m_channels.at(i)->m_spn_yOffset->value());
+//            } else {
+//                vals << vals_recv.at(i).toDouble();
+//            }
+//        }
+
+//        ui->plot->addVals(vals);
     });
 }
 
