@@ -28,6 +28,8 @@ SOURCES += \
     uyk_treeitem_command.cpp \
     uyk_treeitem_common.cpp \
     uyk_treeitem_datafilter.cpp \
+    uykplot_common.cpp \
+    uykplot_multicurve.cpp \
     widget.cpp
 
 HEADERS += \
@@ -42,6 +44,8 @@ HEADERS += \
     uyk_treeitem_command.h \
     uyk_treeitem_common.h \
     uyk_treeitem_datafilter.h \
+    uykplot_common.h \
+    uykplot_multicurve.h \
     widget.h
 
 FORMS += \

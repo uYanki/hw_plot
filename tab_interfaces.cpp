@@ -9,9 +9,7 @@ tab_interfaces::tab_interfaces(QWidget* parent) : QWidget(parent), ui(new Ui::ta
 
     // init ui
 
-    ui->tabbar_interface->setCurrentIndex(0);
-    ui->tabbar_interface->tabBar()->hide();  // 隐藏夹头
-    connect(ui->cmb_interface, SIGNAL(currentIndexChanged(int)), ui->tabbar_interface, SLOT(setCurrentIndex(int)));
+    connect(ui->cmb_interface, SIGNAL(currentIndexChanged(int)), ui->pages, SLOT(setCurrentIndex(int)));
 
     // range limit @port
 

@@ -117,7 +117,7 @@ signals:
     // from logger
     void recvLog(const QString& log);
 
-    // 数据收发速率 kBps (kiloByte per second，比特/秒)
+    // 数据收发速率 kBps (kiloByte per second,比特/秒)
     void update_kBps(const QString& send, const QString& recv);
 
 private slots:
