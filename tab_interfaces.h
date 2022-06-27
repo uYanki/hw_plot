@@ -113,6 +113,7 @@ public:
 signals:
     // from interfaces
     void recvData(const QByteArray& recv);
+    void recvData2(const QByteArray& recv);
     void recvCmd(const QByteArray& recv);
     // from logger
     void recvLog(const QString& log);

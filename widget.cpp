@@ -17,11 +17,8 @@ Widget::Widget(QWidget* parent)
 
     initUI();
 
-    initDataFilter();
     initChanTree();
 
-    // ui->plot->setMode(false);
-    ui->plot->yAxis->setRange(-6000, 6000);
 }
 
 Widget::~Widget() { delete ui; }
@@ -109,34 +106,6 @@ void Widget::initUI() {
     new uyk_treeitem_command(ui->tree_commands, "1");
 }
 
-void Widget::initDataFilter() {
-    // menu
-
-    m_MenuDataFilter = new QMenu(this);
-    m_MenuDataFilter->addAction("new filter", [&]() { m_datafilters.append(new uyk_treeitem_datafilter(ui->tree_datafilter, QStr("filter %1").arg(m_datafilters.size() + 1))); });
-
-    m_MenuDataFilter->addSeparator();
-    m_MenuDataFilter->addAction("expand all", [&]() {foreach(auto i,m_datafilters) i->setExpanded(true); });
-    m_MenuDataFilter->addAction("collapse all", [&]() {foreach(auto i,m_datafilters) i->setExpanded(false); });
-
-    m_MenuDataFilter->addSeparator();
-    m_MenuDataFilter->addAction("enable all", [&]() {foreach(auto i,m_datafilters) i->setCheckState(0,Qt::CheckState::Checked); });
-    m_MenuDataFilter->addAction("disable all", [&]() {foreach(auto i,m_datafilters) i->setCheckState(0,Qt::CheckState::Unchecked); });
-    m_MenuDataFilter->addAction("remove all", [&]() { ui->tree_datafilter->clear(); m_datafilters.clear(); });
-
-    m_MenuDataFilter->addSeparator();
-    m_MenuDataFilter->addAction("load", [&]() {});
-    m_MenuDataFilter->addAction("save", [&]() {});
-
-    // tree
-
-    connect(ui->chk_datafilter_enable, &QCheckBox::stateChanged, [&](int i) { ui->tree_datafilter->setEnabled(i == Qt::CheckState::Checked); });
-
-    ui->tree_datafilter->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-    connect(ui->tree_datafilter, &QTreeWidget::customContextMenuRequested, [&]() { m_MenuDataFilter->exec(QCursor::pos()); });
-
-    // ui->tree_datafilter->setEditTriggers(QTreeWidget::EditTrigger::EditKeyPressed); // F2
-}
 
 void Widget::initChanTree() {
     // menu
@@ -161,12 +130,13 @@ void Widget::initChanTree() {
 }
 
 void Widget::initInterfaces() {
-    m_interfaces = new tab_interfaces(ui->tab_interfaces);
-    ui->tab_interfaces->layout()->addWidget(m_interfaces);
+
+    ui->tab_interfaces->layout()->addWidget(m_interfaces = new tab_interfaces(ui->tab_interfaces));
+    ui->tab_dataformat->layout()->addWidget(m_dataformat = new tab_dataformat(ui->tab_dataformat));
 
     // 指令包头包尾(ASCII)
-    connect(ui->input_dataformat_prefix, &QLineEdit::textChanged, [&](const QString& str) { m_interfaces->m_prefix = str; });
-    connect(ui->input_dataformat_suffix, &QLineEdit::textChanged, [&](const QString& str) { m_interfaces->m_suffix = str; });
+    connect(m_dataformat, &tab_dataformat::prefixChanged, [&](const QString& str) { m_interfaces->m_prefix = str; });
+    connect(m_dataformat, &tab_dataformat::suffixChanged, [&](const QString& str) { m_interfaces->m_suffix = str; });
 
     // 数据接收
     connect(m_interfaces, &tab_interfaces::recvData, [&](const QByteArray& recv) {
@@ -177,12 +147,16 @@ void Widget::initInterfaces() {
         if (m_RawDataMd) appendText(recv);
     });
 
+    // 收发速率更新
+    connect(m_interfaces, &tab_interfaces::update_kBps,[&](const QString& send, const QString& recv){
+        ui->label_speed_of_send->setText(send);
+        ui->label_speed_of_recv->setText(recv);
+    });
+
     // 指令接收
     connect(m_interfaces, &tab_interfaces::recvCmd, [&](const QByteArray& recv) {
         // 指令过滤器
-        if (ui->chk_datafilter_enable->checkState() == Qt::CheckState::Checked)
-            foreach (auto i, m_datafilters)
-                if (i->filter(recv)) return;
+        if(m_dataformat->filter(recv))return;
 
         // 显示接收的指令
         if (!m_RawDataMd) appendText(recv);
@@ -193,12 +167,14 @@ void Widget::initInterfaces() {
 
         // 添加曲线点
 
-
         QVector<double> vals;
-        QStringList strlist = QString(recv).split(ui->input_dataformat_delimiter->text(),Qt::KeepEmptyParts);
+        QStringList strlist = QString(recv).split(m_dataformat->delimiter(),Qt::KeepEmptyParts);
         foreach(auto s,strlist) vals.append(s.toDouble());
 
-        ui->plot_multicurve->addVals(vals);
+        ui->plot_multicurve->addValues(vals);
+        ui->plot_multicurve->xAxis->setRange(
+              ui->plot_multicurve->m_index > ui->plot_multicurve->xAxis->range().size() ? ( ui->plot_multicurve->m_index - ui->plot_multicurve->xAxis->range().size()) : 0
+                    ,ui->plot_multicurve->m_index);
 
 //        QStringList vals_recv;
 //        if (ui->input_dataformat_delimiter->text().isEmpty()) {

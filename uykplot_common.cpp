@@ -130,6 +130,11 @@ void uykplot_common::initLegend() {
             action->setCheckable(true);
             action->setChecked(pPlottable->visible());
 
+            // - yAxis
+
+            // 移至其他轴
+            // pPlottable->valueAxis() == yAxis
+
             // - style
 
             // - save
@@ -197,8 +202,10 @@ void uykplot_common::initValuesTip() {
         if (!(x_val < 0 || x_val > m_index)) {
             // 在[0,m_index]范围内
             foreach (auto graph, mGraphs) {
-                float y_val = graph->data()->at(x_val)->value;
-                tip += "\n" + graph->name() + ": " + QString::number(y_val);
+                if(graph->visible()){
+                    float y_val = graph->data()->at(x_val)->value;
+                    tip += "\n" + graph->name() + ": " + QString::number(y_val);
+                }
             }
         }
         m_valstip->setText(tip);

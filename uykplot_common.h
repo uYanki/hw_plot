@@ -67,7 +67,7 @@ protected:
 
     /***********************************/
 
-protected:
+public:
     size_t m_index=0; // for addValues
 
 };

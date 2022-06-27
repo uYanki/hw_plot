@@ -15,12 +15,12 @@
 
 #include "uyk_savefile.h"
 #include "uyk_treeitem_channel.h"
-#include "uyk_treeitem_datafilter.h"
 #include "uyk_treeitem_command.h"
-#include "uyk_baseplot.h"
+
 #include "uyk_custom_action.h"
 
 #include "tab_interfaces.h"
+#include "tab_dataformat.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -41,18 +41,13 @@ public:
 
     /************** interfaces **************/
 
-    // 过滤器
 
-    QMenu* m_MenuDataFilter = nullptr; // @ tree_datafilter
-    QVector<uyk_treeitem_datafilter*> m_datafilters;
-    void initDataFilter(void);
 
     // 图表
 
     QVector<uyk_treeitem_channel*> m_channels;
     QMenu* m_MenuChannel = nullptr; // @ tree_channel
     void initChanTree(void);
-
 
 
 
@@ -71,6 +66,8 @@ public:
 
     tab_interfaces* m_interfaces;
     void initInterfaces(void);
+
+    tab_dataformat* m_dataformat;
 
 
     // @ input_recv

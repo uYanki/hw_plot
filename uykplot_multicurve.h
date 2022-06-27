@@ -13,7 +13,6 @@ private:
     void initAxis(void);
     void initMenu(void);
 
-
 public:
     bool addValues(const QVector<double>& values);
 };

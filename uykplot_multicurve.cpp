@@ -52,7 +52,7 @@ void uykplot_multicurve::initMenu() {
     menu_rescalex->addAction("auto", [&]() { xAxis->rescale(); });
     menu_rescalex->addSeparator();
 
-    auto action_rescalex = [&](size_t size) { menu_rescalex->addAction(QString::number(size), [&]() { xAxis->setRange((m_index > size) ? (m_index - size) : 0, m_index); }); };
+    auto action_rescalex = [&](size_t size) { menu_rescalex->addAction(QString::number(size), [&,size]() { xAxis->setRange((m_index < size) ? 0 : (m_index - size), m_index); }); };
 
     action_rescalex(100);
     action_rescalex(500);
@@ -94,7 +94,7 @@ void uykplot_multicurve::initMenu() {
     // - 清除曲线
 
     m_Menu->addSeparator();
-    m_Menu->addAction("clear", [&]() { clearGraphs(); });
+    m_Menu->addAction("clear", [&]() { clearGraphs(); m_index = 0;});
 }
 
 bool uykplot_multicurve::addValues(const QVector<double>& values) {

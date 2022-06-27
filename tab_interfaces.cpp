@@ -348,6 +348,7 @@ void tab_interfaces::analyzeCmd(const QByteArray& recv) {
     m_BytesOfRecv += recv.length();  // 字节计次
     emit recvData(recv);
     if (!recv.contains('\n')) return;                    // 按行读取
+    emit recvData2(recv);
     emit recvCmd(strmid(m_buffer, m_prefix, m_suffix));  // 命令截取
     m_buffer.clear();                                    // 清除缓冲
 }
