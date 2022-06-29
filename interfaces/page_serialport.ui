@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>page_serialport</class>
+ <widget class="QWidget" name="page_serialport">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>240</width>
+    <height>287</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>DataBits:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_1">
+     <property name="text">
+      <string>Port:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QLabel" name="label_port_desc">
+     <property name="styleSheet">
+      <string notr="true">color:grey;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Configurations:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_stopbits">
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>1.5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="11" column="2">
+    <widget class="QCheckBox" name="chk_signal_RTS">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>RTS</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_flowcontrol">
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Hard</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Soft</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QCheckBox" name="chk_signal_DTR">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>DTR</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Parity:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>BaudRate:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>FlowControl:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_databits">
+     <property name="currentIndex">
+      <number>3</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>6</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>7</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_port"/>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_baudrate">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <property name="duplicatesEnabled">
+      <bool>false</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>9600</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>115200</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>460800</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>921600</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Signals:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="2">
+    <widget class="QComboBox" name="cmb_parity">
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Even</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Odd</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Space</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mark</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>StopBits:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

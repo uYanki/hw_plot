@@ -47,7 +47,6 @@ tab_interfaces::tab_interfaces(QWidget* parent) : QWidget(parent), ui(new Ui::ta
     m_TmrSpeedCalc = new QTimer(this);
     connect(m_TmrSpeedCalc, &QTimer::timeout, [&]() {
         // 数据传输速率 (kBps)
-        QString       m_SpeedOfsend;
         static size_t last_BytesOfRecv = 0;
         static size_t last_BytesOfSend = 0;
         QString       m_SpeedOfRecv    = QString("%1 kB/s").arg((m_BytesOfRecv - last_BytesOfRecv) / 1024.0f);
@@ -87,8 +86,8 @@ void tab_interfaces::initSerialPort() {
     });
 
     // set flow control signals
-    connect(ui->chk_serial_signal_DTR, &QCheckBox::stateChanged, [&](int i) { m_SerialPort->setDataTerminalReady(i==Qt::CheckState::Checked); });
-    connect(ui->chk_serial_signal_RTS, &QCheckBox::stateChanged, [&](int i) { m_SerialPort->setRequestToSend(i==Qt::CheckState::Checked); });
+    connect(ui->chk_serial_signal_DTR, &QCheckBox::stateChanged, [&](int i) { m_SerialPort->setDataTerminalReady(i == Qt::CheckState::Checked); });
+    connect(ui->chk_serial_signal_RTS, &QCheckBox::stateChanged, [&](int i) { m_SerialPort->setRequestToSend(i == Qt::CheckState::Checked); });
 
     // scan serial port
     scanSerialPort();
@@ -274,7 +273,7 @@ bool tab_interfaces::eventFilter(QObject* watched, QEvent* event) {
     return QWidget::eventFilter(watched, event);
 }
 
-bool tab_interfaces::listen(bool state){
+bool tab_interfaces::listen(bool state) {
     if (state == m_runstate) return state;
 
     // state = true -> running
@@ -303,11 +302,11 @@ bool tab_interfaces::listen(bool state){
 
     // timer of speed calc
 
-    if(state){
+    if (state) {
         m_TmrSpeedCalc->start(1000);
-    }else{
+    } else {
         m_TmrSpeedCalc->stop();
-        emit update_kBps(QStr("0 kB/s"),QStr("0 kB/s"));
+        emit update_kBps(QStr("0 kB/s"), QStr("0 kB/s"));
     }
 
     // update ui
@@ -347,10 +346,8 @@ void tab_interfaces::analyzeCmd(const QByteArray& recv) {
     m_buffer.append(recv);
     m_BytesOfRecv += recv.length();  // 字节计次
     emit recvData(recv);
-    if (!recv.contains('\n')) return;                    // 按行读取
+    if (!recv.contains('\n')) return;  // 按行读取
     emit recvData2(recv);
     emit recvCmd(strmid(m_buffer, m_prefix, m_suffix));  // 命令截取
     m_buffer.clear();                                    // 清除缓冲
 }
-
-

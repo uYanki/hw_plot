@@ -202,7 +202,7 @@ void Widget::initInterfaces() {
 void Widget::appendText(const QString& content) {
     if (m_TimestampMd) {
         ui->input_recv->moveCursor(QTextCursor::End);
-        ui->input_recv->insertPlainText(QTime::currentTime().toString("[hh:mm:ss] "));
+        ui->input_recv->insertPlainText(QTime::currentTime().toString("[hh:mm:ss]"));
     }
     ui->input_recv->moveCursor(QTextCursor::End);
     ui->input_recv->insertPlainText(content);
