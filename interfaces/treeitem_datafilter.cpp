@@ -1,13 +1,20 @@
 #include "treeitem_datafilter.h"
 
-treeitem_datafilter::treeitem_datafilter(QTreeWidget* parent, const QString& title) : treeitem_common(parent) {
+treeitem_datafilter::treeitem_datafilter(QTreeWidget* parent, const QString& title) :
+    QTreeWidgetItem(parent),
+    m_container(new formlayout(parent)),
+    m_cmb_mode(new QComboBox(m_container)),
+    m_cmb_pos(new QComboBox(m_container)),
+    m_input_content(new QLineEdit(m_container))
+{
+
     /* father item */
 
     setText(0, title);
     setCheckState(0, Qt::Checked);
     setExpanded(true);
 
-    // 双击编辑
+    // F2 编辑名称
     setFlags(flags() | Qt::ItemIsEditable);
 
     // 背景色
@@ -16,18 +23,24 @@ treeitem_datafilter::treeitem_datafilter(QTreeWidget* parent, const QString& tit
     /* son item */
 
     // 过滤器类型
-    addWidget("Mode:", m_cmb_mode);
-    m_cmb_mode->addItem("Include");
-    m_cmb_mode->addItem("Exclude");
+    m_container->addWidget(QLatin1String("Mode:"), m_cmb_mode);
+    m_cmb_mode->addItem(QLatin1String("Include"));
+    m_cmb_mode->addItem(QLatin1String("Exclude"));
 
     // 过滤位置
-    addWidget("Pos:", m_cmb_pos);
-    m_cmb_pos->addItem("Prefix");
-    m_cmb_pos->addItem("Suffix");
-    m_cmb_pos->addItem("Contain");
+    m_container->addWidget(QLatin1String("Pos:"), m_cmb_pos);
+    m_cmb_pos->addItem(QLatin1String("Prefix"));
+    m_cmb_pos->addItem(QLatin1String("Suffix"));
+    m_cmb_pos->addItem(QLatin1String("Contain"));
 
     // 过滤内容
-    addWidget("Content: ", m_input_content);
+    m_container->addWidget(QLatin1String("Content: "), m_input_content);
+
+    /* show */
+
+    auto sub = new QTreeWidgetItem(this, QStringList());
+    parent->setItemWidget(sub,0,m_container);
+
 }
 
 bool treeitem_datafilter::filter(const QString& text) {

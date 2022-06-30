@@ -10,8 +10,8 @@ QByteArray strMid(const QByteArray& content, const QString& left, const QString&
 
 datahandler::datahandler(QWidget* parent) : QWidget(parent) {  // @ kBps
     connect(m_TmrSpeedCalc = new QTimer(parent), &QTimer::timeout, [&]() {
-        m_SpeedOfRecv     = QString("%1 kB/s").arg((m_BytesOfRecv - m_LastBytesOfRecv) / 1024.0f);
-        m_SpeedOfSend     = QString("%1 kB/s").arg((m_BytesOfSend - m_LastBytesOfSend) / 1024.0f);
+        m_SpeedOfRecv     = QString("%1 B/s").arg(m_BytesOfRecv - m_LastBytesOfRecv);
+        m_SpeedOfSend     = QString("%1 B/s").arg(m_BytesOfSend - m_LastBytesOfSend);
         m_LastBytesOfRecv = m_BytesOfRecv;
         m_LastBytesOfSend = m_BytesOfSend;
         emit update();
@@ -20,15 +20,17 @@ datahandler::datahandler(QWidget* parent) : QWidget(parent) {  // @ kBps
 
 datahandler::~datahandler() {}
 
-bool datahandler::start() {
+void datahandler::start() {
     m_TmrSpeedCalc->start(1000);
-    return true;
+    emit update();
+    emit runstate(true);
 }
 
 void datahandler::stop() {
     m_TmrSpeedCalc->stop();
-    m_SpeedOfRecv = m_SpeedOfSend = QStringLiteral("0 kB/s");
+    m_SpeedOfRecv = m_SpeedOfSend = QLatin1String("0 kB/s");
     emit update();
+    emit runstate(false);
 }
 
 QByteArray substr(const QByteArray& content, const QString& left, const QString& right) {

@@ -21,18 +21,22 @@ public:
     explicit page_serialport(QWidget* parent = nullptr);
     ~page_serialport();
 
+private:
+    Ui::page_serialport* ui;
+
 public:
     QSerialPort* const m_SerialPort;
 
-    bool start(void) Q_DECL_OVERRIDE;
+    void start(void) Q_DECL_OVERRIDE;
     void stop(void) Q_DECL_OVERRIDE;
     void senddata(const QByteArray& bytes) Q_DECL_OVERRIDE;
 
     void scan(void);  // scan available ports
 
-private:
-    Ui::page_serialport* ui;
+signals:
+    void runstate(void);
 
+private:
     bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE;
 };
 

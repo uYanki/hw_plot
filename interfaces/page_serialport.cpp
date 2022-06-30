@@ -8,8 +8,8 @@ void delay_ms(unsigned int msec) {
 }
 
 page_serialport::page_serialport(QWidget* parent) : datahandler(parent),
-                                                    m_SerialPort(new QSerialPort(this)),
-                                                    ui(new Ui::page_serialport) {
+                                                    ui(new Ui::page_serialport),
+    m_SerialPort(new QSerialPort(this)){
     ui->setupUi(this);
 
     ui->label_port_desc->setVisible(false);
@@ -23,13 +23,13 @@ page_serialport::page_serialport(QWidget* parent) : datahandler(parent),
 
     // configure params
 
-    void (QComboBox::*pSIGNAL_CMB_INDEX_CHANGE)(int) = &QComboBox::currentIndexChanged;
-    connect(ui->cmb_port, pSIGNAL_CMB_INDEX_CHANGE, [&](int) { ui->label_port_desc->setText(ui->cmb_port->currentData().toString()); });
-    connect(ui->cmb_baudrate, pSIGNAL_CMB_INDEX_CHANGE, [&](int) { m_SerialPort->setBaudRate(ui->cmb_baudrate->currentText().toInt()); });                           // 波特率
-    connect(ui->cmb_databits, pSIGNAL_CMB_INDEX_CHANGE, [&](int) { m_SerialPort->setDataBits((QSerialPort::DataBits)(ui->cmb_databits->currentText().toInt())); });  //数据位
-    connect(ui->cmb_parity, pSIGNAL_CMB_INDEX_CHANGE, [&](int i) { m_SerialPort->setParity((QSerialPort::Parity)((i == 0) ? 0 : (i + 1))); });                       // 校验位
-    connect(ui->cmb_flowcontrol, pSIGNAL_CMB_INDEX_CHANGE, [&](int i) { m_SerialPort->setFlowControl((QSerialPort::FlowControl)i); });                               // 数据流控
-    connect(ui->cmb_stopbits, pSIGNAL_CMB_INDEX_CHANGE, [&](int i) {
+    void (QComboBox::*p)(int) = &QComboBox::currentIndexChanged;
+    connect(ui->cmb_port, p, [&](int) { ui->label_port_desc->setText(ui->cmb_port->currentData().toString()); });
+    connect(ui->cmb_baudrate, p, [&](int) { m_SerialPort->setBaudRate(ui->cmb_baudrate->currentText().toInt()); });                           // 波特率
+    connect(ui->cmb_databits, p, [&](int) { m_SerialPort->setDataBits((QSerialPort::DataBits)(ui->cmb_databits->currentText().toInt())); });  //数据位
+    connect(ui->cmb_parity, p, [&](int i) { m_SerialPort->setParity((QSerialPort::Parity)((i == 0) ? 0 : (i + 1))); });                       // 校验位
+    connect(ui->cmb_flowcontrol, p, [&](int i) { m_SerialPort->setFlowControl((QSerialPort::FlowControl)i); });                               // 数据流控
+    connect(ui->cmb_stopbits, p, [&](int i) {
         switch (i) {  //停止位
             case 0: m_SerialPort->setStopBits(QSerialPort::OneStop); break;
             case 1: m_SerialPort->setStopBits(QSerialPort::OneAndHalfStop); break;
@@ -62,18 +62,20 @@ page_serialport::page_serialport(QWidget* parent) : datahandler(parent),
 
 page_serialport::~page_serialport() { delete ui; }
 
-bool page_serialport::start() {
+void page_serialport::start() {
     // open serialport
-    if (ui->cmb_port->currentIndex() == -1) return false;
+    if (ui->cmb_port->currentIndex() == -1) return;
     m_SerialPort->setPortName(ui->cmb_port->currentText());
     if (m_SerialPort->open(QIODevice::ReadWrite)) {
         ui->cmb_port->setEnabled(false);
         ui->chk_signal_DTR->setEnabled(true);
         ui->chk_signal_RTS->setEnabled(true);
-        return datahandler::start();
+        datahandler::start();
+    }else{
+        // fail
+        emit datahandler::runstate(false);
+        QMessageBox::warning(this, QLatin1String("ERROR"), QLatin1String("fail to open serial port"));
     }
-    QMessageBox::warning(this, "ERROR", "fail to open serial port");
-    return false;
 }
 
 void page_serialport::stop() {
@@ -104,5 +106,5 @@ void page_serialport::scan() {
 bool page_serialport::eventFilter(QObject* watched, QEvent* event) {
     // scan available serial ports when hover enter
     if (watched == ui->cmb_port && event->type() == QEvent::HoverEnter) scan();
-    return QWidget::eventFilter(watched, event);
+    return datahandler::eventFilter(watched, event);
 }

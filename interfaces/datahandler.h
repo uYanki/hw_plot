@@ -26,16 +26,17 @@ public:
     size_t m_BytesOfRecv     = 0;
     size_t m_BytesOfSend     = 0;
 
-    // 传输速率 (kiloByte per second, kBps)
+    // 传输速率 ( Byte per second, Bps; kiloByte per second, kBps)
 
     QString m_SpeedOfRecv;
     QString m_SpeedOfSend;
 
-    virtual bool start();
+    virtual void start();
     virtual void stop();
 
 signals:
     void update(void);
+    void runstate(bool state);
 
     //////////////////////////////////////////////
 

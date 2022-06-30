@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
+    <width>277</width>
     <height>503</height>
    </rect>
   </property>
@@ -66,10 +66,13 @@
     </widget>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="QStackedWidget" name="stack">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="page_serialport" name="p_serialport"/>
      <widget class="page_tcpserver" name="p_tcpserver"/>
-     <widget class="QWidget" name="p_tcpclient"/>
+     <widget class="page_tcpclient" name="p_tcpclient"/>
     </widget>
    </item>
    <item>
@@ -87,6 +90,9 @@
      <property name="checkable">
       <bool>true</bool>
      </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
   </layout>
@@ -95,13 +101,19 @@
   <customwidget>
    <class>page_serialport</class>
    <extends>QWidget</extends>
-   <header>page_serialport.h</header>
+   <header>interfaces/page_serialport.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>page_tcpserver</class>
    <extends>QWidget</extends>
-   <header>page_tcpserver.h</header>
+   <header>interfaces/page_tcpserver.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>page_tcpclient</class>
+   <extends>QWidget</extends>
+   <header>interfaces/page_tcpclient.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

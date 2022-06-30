@@ -3,11 +3,18 @@
 
 #include <QWidget>
 
+#include <QMessageBox>
+
+#include <QTcpSocket>
+
+#include "datahandler.h"
+#include "getlocalip.h"
+
 namespace Ui {
     class page_tcpclient;
 }
 
-class page_tcpclient : public QWidget {
+class page_tcpclient : public datahandler {
     Q_OBJECT
 
 public:
@@ -16,6 +23,17 @@ public:
 
 private:
     Ui::page_tcpclient* ui;
+
+public:
+    QTcpSocket* const m_Client;
+
+    void start(void) Q_DECL_OVERRIDE;
+    void stop(void) Q_DECL_OVERRIDE;
+    void senddata(const QByteArray& bytes) Q_DECL_OVERRIDE;
+
+private:
+    bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE;
+    // QTimer* const m_TmrReconnect;
 };
 
 #endif  // PAGE_TCPCLIENT_H
