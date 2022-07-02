@@ -1,5 +1,5 @@
-#ifndef UYKPLOT_COMMON_H
-#define UYKPLOT_COMMON_H
+#ifndef PLOT_COMMON_H
+#define PLOT_COMMON_H
 
 #include <QMenu>
 #include <QRubberBand>
@@ -9,10 +9,10 @@
 
 #define QStr QStringLiteral
 
-class uykplot_common : public QCustomPlot {
+class plot_common : public QCustomPlot {
     Q_OBJECT
 public:
-    explicit uykplot_common(QWidget* parent = nullptr);
+    explicit plot_common(QWidget* parent = nullptr);
 
     /***********************************/
 
@@ -72,4 +72,4 @@ public:
 
 };
 
-#endif  // UYKPLOT_COMMON_H
+#endif  // PLOT_COMMON_H

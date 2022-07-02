@@ -77,12 +77,17 @@ void tab_dataformat::readline(const QByteArray& bytes)
 
     if(prefix.isEmpty() && suffix.isEmpty()){
         // 减少深度拷贝次数
-        if(!filter(bytes)) emit readcmd(bytes);
+        if(!filter(bytes)) {
+            emit readcmd(bytes);
+            handleCmd(bytes);
+        }
     }else{
         const QByteArray& cmd = substr(bytes, prefix, suffix);
-        if(!cmd.isEmpty() && !filter(cmd)) emit readcmd(cmd);
+        if(!cmd.isEmpty() && !filter(cmd)) {
+            emit readcmd(cmd);
+            handleCmd(cmd);
+        }
     }
-
 }
 
 bool tab_dataformat::filter(const QByteArray& bytes) {
@@ -90,4 +95,19 @@ bool tab_dataformat::filter(const QByteArray& bytes) {
         foreach (auto i, m_filters)
             if (i->filter(bytes)) return true;
     return false;
+}
+
+void tab_dataformat::handleCmd(const QByteArray &bytes){
+
+    QVector<double> values;
+
+    if(!ui->input_delimiter->text().isEmpty()){
+        auto vals = QString::fromLatin1(bytes).split(ui->input_delimiter->text(), Qt::KeepEmptyParts);
+        foreach(auto val,vals) values.append(val.toDouble());
+    }else{
+        values<< bytes.toDouble();
+    }
+
+    emit readvals(values);
+
 }

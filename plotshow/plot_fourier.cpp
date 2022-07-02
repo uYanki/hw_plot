@@ -1,6 +1,6 @@
-#include "uykplot_fourier.h"
+#include "plot_fourier.h"
 
-uykplot_fourier::uykplot_fourier(QWidget* parent) :uykplot_common(parent)
+plot_fourier::plot_fourier(QWidget* parent) :plot_common(parent)
 {
 
     // 配置坐标轴

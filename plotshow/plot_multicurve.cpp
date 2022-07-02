@@ -1,12 +1,12 @@
-#include "uykplot_multicurve.h"
+#include "plot_multicurve.h"
 
-uykplot_multicurve::uykplot_multicurve(QWidget* parent) : uykplot_common(parent) {
+plot_multicurve::plot_multicurve(QWidget* parent) : plot_common(parent) {
 
     initAxis();
     initMenu();
 }
 
-void uykplot_multicurve::initAxis()
+void plot_multicurve::initAxis()
 {
     // 配置坐标轴
 
@@ -22,7 +22,7 @@ void uykplot_multicurve::initAxis()
     axrc->axis(QCPAxis::atBottom)->grid()->setZeroLinePen(QPen(Qt::red));
 }
 
-void uykplot_multicurve::initMenu() {
+void plot_multicurve::initMenu() {
     // 配置右键菜单
 
     // - 坐标轴范围
@@ -96,8 +96,8 @@ void uykplot_multicurve::initMenu() {
     m_Menu->addSeparator();
     m_Menu->addAction("clear", [&]() { clearGraphs(); m_index = 0;});
 }
-
-bool uykplot_multicurve::addValues(const QVector<double>& values) {
+#include <QDebug>
+bool plot_multicurve::addValues(const QVector<double>& values) {
     if (values.size() > MAX_COUNT_OF_CURVE) return false;
 
     // auto append graph
@@ -117,21 +117,7 @@ bool uykplot_multicurve::addValues(const QVector<double>& values) {
 
     ++m_index;
 
+    xAxis->setRange(m_index > xAxis->range().size() ? (m_index -xAxis->range().size()) : 0,m_index);
+
     return true;
 }
-
-/*
-
-     // refer:https://blog.csdn.net/weixin_45118705/article/details/106031334
-
-     // 菜单上的控件
-     QWidgetAction* pWdtAction1 = new QWidgetAction(menu_rescaley);
-     pWdtAction1->setDefaultWidget(new QLabel("选择麦克风", menu_rescaley));
-     menu_rescaley->addAction(pWdtAction1);
-
-     // 透明菜单
-     menu_rescaley->setProperty("class", "blackMenu");
-     menu_rescaley->setWindowFlags(menu_rescaley->windowFlags() | Qt::FramelessWindowHint);
-     menu_rescaley->setAttribute(Qt::WA_TranslucentBackground);
-
-*/

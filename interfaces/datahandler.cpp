@@ -11,6 +11,7 @@ datahandler::datahandler(QWidget* parent) : QWidget(parent), m_TmrSpeedCalc(new 
 }
 
 void datahandler::start() {
+    m_buffer.clear();
     m_TmrSpeedCalc->start(1000);
     emit runstate(true);
 }

@@ -1,12 +1,12 @@
-#ifndef UYKPLOT_FOURIER_H
-#define UYKPLOT_FOURIER_H
+#ifndef PLOT_FOURIER_H
+#define PLOT_FOURIER_H
 
-#include "uykplot_common.h"
+#include "plot_common.h"
 
-class uykplot_fourier : public uykplot_common
+class plot_fourier : public plot_common
 {
 public:
-    uykplot_fourier(QWidget* parent = nullptr);
+    plot_fourier(QWidget* parent = nullptr);
 
 public:
     /*
@@ -21,4 +21,4 @@ public:
 
 };
 
-#endif // UYKPLOT_FOURIER_H
+#endif // PLOT_FOURIER_H

@@ -8,6 +8,6 @@
 #include <QString>
 #include <QTextStream>
 
-bool savefile(QString suffix, std::function<void(QTextStream&)> pFunc);
+bool savefile(const QString& filename, std::function<void(QTextStream&)> pFunc);
 
 #endif  // UYK_SAVEFILE_H

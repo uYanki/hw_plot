@@ -14,7 +14,7 @@ dataarea::dataarea(QWidget* parent) : QWidget(parent),
     ui->splitter->setStretchFactor(0, 7);
     ui->splitter->setStretchFactor(1, 3);
 
-    // 接收区Tab配置
+    // 接收区选项卡
 
     m_input_recv->setReadOnly(true);
     m_input_recv->setPlaceholderText("waiting for data to arrive");
@@ -49,15 +49,11 @@ dataarea::dataarea(QWidget* parent) : QWidget(parent),
 
     m_MenuOfSend->addAction(QLatin1String("clear"), [&]() { ui->input_send->clear(); });
 
-    // 发送按钮菜单
-
-    initAutoSend();
-
     // 自动发送
 
     initAutoSend();
 
-    // 历史记录列表
+    // 历史发送记录(双击发送)
 
     connect(ui->list_histroy, &QListWidget::itemDoubleClicked, [&](QListWidgetItem* item) { emit senddata(item->text().toUtf8()); });
 }
@@ -81,15 +77,22 @@ void dataarea::initAutoSend() {
     spn
 
     cfgSpn(m_SpnInterval, 1, 9999, 1000)->setSuffix(QLatin1String(" ms"));
-    cfgSpn(m_SpnTimes, 0, 9999, 0)->setToolTip(QLatin1String("0: infinity"));
+    cfgSpn(m_SpnTimes, -1, 9999, -1)->setToolTip(QLatin1String("-1: infinity"));
 
     // 置右键菜单
+
+    static int times = 0;
 
     ui->btn_send->setMenu(m_MenuOfSendBtn = new QMenu(this));
 
     QAction* actRunAutoSend;
-    (actRunAutoSend = m_MenuOfSendBtn->addAction(QLatin1String("Auto send"), [&](bool) {
-        m_TmrAutoSend->start(m_SpnInterval->value());
+    (actRunAutoSend = m_MenuOfSendBtn->addAction(QLatin1String("Auto send"), [=](bool b) {
+        if(b){
+            m_TmrAutoSend->start(m_SpnInterval->value());
+            times= m_SpnTimes->value();
+        }else{
+            m_TmrAutoSend->stop();
+        }
     }))->setCheckable(true);
     ;
 
@@ -97,22 +100,25 @@ void dataarea::initAutoSend() {
     wgtAct->setDefaultWidget(m_CntrAutoSend);
     m_MenuOfSendBtn->addAction(wgtAct);
 
-    // 时钟
+    // 动态更改发送间隔
 
-    connect(m_TmrAutoSend, &QTimer::timeout, [&]() {
+    void (QSpinBox::*p)(int) = &QSpinBox::valueChanged;
+    connect(m_SpnInterval,p,[=](int v){m_TmrAutoSend->setInterval(v);});
+
+    // 自动发送时钟
+
+    connect(m_TmrAutoSend, &QTimer::timeout, [=]() {
         const QString& text = ui->input_send->toPlainText();
-        if (text.isEmpty()) return;  // 有内容发送才计算次数
+        if (text.isEmpty()) return;  // 有内容发送才计次
 
-        int val = m_SpnTimes->value();
-        if (val > 0) {
-            m_SpnTimes->setValue(--val);
-            if (val == 0) {  // 结束发送
-                m_TmrAutoSend->stop();
-                actRunAutoSend->setChecked(false);
-            }
+        if(times == -1 || times-- > 0){
+            emit senddata(ui->input_send->toPlainText().toUtf8());
+        }else{
+            // 结束发送
+            m_TmrAutoSend->stop();
+            actRunAutoSend->setChecked(false);
         }
 
-        emit senddata(ui->input_send->toPlainText().toUtf8());
     });
 }
 
@@ -125,7 +131,6 @@ void dataarea::readcmd(const QString& recv) {
         if (m_TimestampMd) m_input_recv->append(input_common::timestamp(), QColor("#22A3A9"));
         m_input_recv->append(recv);
     }
-
     foreach (auto filter, m_SubFilters) filter->recvcmd(recv);
 }
 
@@ -136,7 +141,10 @@ void dataarea::updatestat(size_t BytesOfRecv, size_t BytesOfSend, const QString&
     ui->label_speed_of_send->setText(SpeedOfSend);
 }
 
-void dataarea::runstate(bool state) { ui->btn_send->setEnabled(state); }
+void dataarea::runstate(bool state) {
+    ui->btn_send->setEnabled(state);
+    m_TmrAutoSend->stop(); // 停止自动发送
+}
 
 void dataarea::on_btn_send_clicked() {
     const QString& text = ui->input_send->toPlainText();

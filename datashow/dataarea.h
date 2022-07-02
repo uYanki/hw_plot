@@ -62,6 +62,8 @@ public slots:
                     const QString& SpeedOfSend);
     void runstate(bool state);
 
+
+
 private slots:
     void on_btn_send_clicked();
 };

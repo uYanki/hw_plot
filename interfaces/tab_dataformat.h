@@ -31,11 +31,16 @@ private:
 
 signals:
     void readcmd(const QByteArray& cmd);
+    void readvals(const QVector<double>& values);
 public slots:
     void readline(const QByteArray& bytes);
+private:
+    void handleCmd(const QByteArray& bytes);
 
 private:
     bool filter(const QByteArray& bytes);
+
+
 };
 
 #endif  // TAB_DATAFORMAT_H

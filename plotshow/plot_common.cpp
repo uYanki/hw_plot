@@ -1,6 +1,6 @@
-#include "uykplot_common.h"
+#include "plot_common.h"
 
-uykplot_common::uykplot_common(QWidget* parent) : QCustomPlot(parent) {
+plot_common::plot_common(QWidget* parent) : QCustomPlot(parent) {
     initAxis();
     initLegend();
     initValuesTip();
@@ -16,7 +16,7 @@ uykplot_common::uykplot_common(QWidget* parent) : QCustomPlot(parent) {
     m_TmrReplot->start(1000 / 30.0);  // 30帧/秒
 }
 
-void uykplot_common::initAxis() {
+void plot_common::initAxis() {
     setInteraction(QCP::Interaction::iSelectAxes, true);  // 坐标轴可选
     setInteraction(QCP::Interaction::iRangeDrag, true);   // 允许鼠标拖拽坐标轴
     setInteraction(QCP::Interaction::iRangeZoom, true);   // 允许滚轮拖拽坐标轴
@@ -51,7 +51,7 @@ void uykplot_common::initAxis() {
     });
 }
 
-void uykplot_common::initLegend() {
+void plot_common::initLegend() {
     legend->setVisible(true);  // 图例可视
 
     setInteraction(QCP::Interaction::iSelectLegend, true);      // 图例可选
@@ -150,13 +150,13 @@ void uykplot_common::initLegend() {
     });
 }
 
-inline void uykplot_common::refresh() {
+inline void plot_common::refresh() {
     replot(QCustomPlot::RefreshPriority::rpQueuedReplot);
 }
 
 /*********************************************************/
 
-void uykplot_common::initValuesTip() {
+void plot_common::initValuesTip() {
     // 十字线
     m_hLine = new QCPItemStraightLine(this);
     m_vLine = new QCPItemStraightLine(this);
@@ -220,7 +220,7 @@ void uykplot_common::initValuesTip() {
     setValuesTipVisible(false);
 }
 
-void uykplot_common::setValuesTipVisible(bool b) {
+void plot_common::setValuesTipVisible(bool b) {
     if (m_valstip->visible() == b)
         return;
     if (mGraphs.isEmpty())
@@ -232,13 +232,13 @@ void uykplot_common::setValuesTipVisible(bool b) {
 
 /*********************************************************/
 
-void uykplot_common::initSelectedAreaMask() {
+void plot_common::initSelectedAreaMask() {
     // 框选区域的掩膜
     m_SelectedArea = new QRubberBand(QRubberBand::Rectangle, this);
     m_SelectedArea->setBackgroundRole(QPalette::Light);
 }
 
-bool uykplot_common::updateSelectArea(uint8_t e, QMouseEvent* event) {
+bool plot_common::updateSelectArea(uint8_t e, QMouseEvent* event) {
     static QPoint ptStrat;  // 框选起始点
     if (e == QEvent::MouseButtonPress) {
         /* mousePressEvent */
@@ -266,7 +266,7 @@ bool uykplot_common::updateSelectArea(uint8_t e, QMouseEvent* event) {
 
 /*********************************************************/
 
-bool uykplot_common::isMouseInGrid(const QPoint& pos) {
+bool plot_common::isMouseInGrid(const QPoint& pos) {
     // in axisRect
 
     bool bNotInAxisRect =
@@ -282,13 +282,13 @@ bool uykplot_common::isMouseInGrid(const QPoint& pos) {
     return !legend->rect().contains(pos);
 }
 
-void uykplot_common::mousePressEvent(QMouseEvent* event) {
+void plot_common::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::RightButton)
         updateSelectArea(QEvent::MouseButtonPress, event);
     QCustomPlot::mousePressEvent(event);
 }
 
-void uykplot_common::mouseMoveEvent(QMouseEvent* event) {
+void plot_common::mouseMoveEvent(QMouseEvent* event) {
     updateSelectArea(QEvent::MouseMove, event);
 
     // 鼠标在非网格区域时隐藏提示
@@ -299,7 +299,7 @@ void uykplot_common::mouseMoveEvent(QMouseEvent* event) {
     QCustomPlot::mouseMoveEvent(event);
 }
 
-void uykplot_common::mouseReleaseEvent(QMouseEvent* event) {
+void plot_common::mouseReleaseEvent(QMouseEvent* event) {
     if (!updateSelectArea(QEvent::MouseButtonRelease, event) &&
         event->button() == Qt::RightButton &&
         isMouseInGrid(event->pos())) {
