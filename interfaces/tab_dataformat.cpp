@@ -2,6 +2,7 @@
 #include "ui_tab_dataformat.h"
 
 #include <QDebug>
+#include <QLineEdit>
 
 tab_dataformat::tab_dataformat(QWidget* parent) : QWidget(parent), ui(new Ui::tab_dataformat) {
     ui->setupUi(this);
@@ -60,6 +61,29 @@ tab_dataformat::tab_dataformat(QWidget* parent) : QWidget(parent), ui(new Ui::ta
 }
 
 tab_dataformat::~tab_dataformat() { delete ui; }
+
+QByteArray substr(const QByteArray& content, const QString& left, const QString& right) {
+    int start, end;
+    if ((start = content.indexOf(left)) == -1) return "";
+    start += left.length();
+    if ((end = right.isEmpty() ? content.length() : content.indexOf(right)) == -1) return "";
+    return content.mid(start, end - start);
+}
+
+void tab_dataformat::readline(const QByteArray& bytes)
+{
+    const QString& prefix =  ui->input_prefix->text();
+    const QString& suffix =  ui->input_suffix->text();
+
+    if(prefix.isEmpty() && suffix.isEmpty()){
+        // 减少深度拷贝次数
+        if(!filter(bytes)) emit readcmd(bytes);
+    }else{
+        const QByteArray& cmd = substr(bytes, prefix, suffix);
+        if(!cmd.isEmpty() && !filter(cmd)) emit readcmd(cmd);
+    }
+
+}
 
 bool tab_dataformat::filter(const QByteArray& bytes) {
     if (ui->chk_enable_filter->checkState() == Qt::CheckState::Checked)

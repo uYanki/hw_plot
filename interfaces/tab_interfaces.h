@@ -14,6 +14,21 @@ public:
     explicit tab_interfaces(QWidget* parent = nullptr);
     ~tab_interfaces();
 
+private:
+    bool state = false;
+
+signals:
+    void readdata(const QByteArray& recv);
+    void readline(const QByteArray& recv);
+    void updatestat(size_t         BytesOfRecv,
+                    size_t         BytesOfSend,
+                    const QString& SpeedOfRecv,
+                    const QString& SpeedOfSend);
+    void runstate(bool state);
+
+public:
+    void senddata(const QByteArray& bytes);
+
 private slots:
     void on_btn_run_clicked();
 

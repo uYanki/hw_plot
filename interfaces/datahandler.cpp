@@ -1,53 +1,34 @@
 #include "datahandler.h"
 
-QByteArray strMid(const QByteArray& content, const QString& left, const QString& right) {
-    int start, end;
-    if ((start = content.indexOf(left)) == -1) return "";
-    start += left.length();
-    if ((end = right.isEmpty() ? content.length() : content.indexOf(right)) == -1) return "";
-    return content.mid(start, end - start);
-}
-
-datahandler::datahandler(QWidget* parent) : QWidget(parent) {  // @ kBps
-    connect(m_TmrSpeedCalc = new QTimer(parent), &QTimer::timeout, [&]() {
-        m_SpeedOfRecv     = QString("%1 B/s").arg(m_BytesOfRecv - m_LastBytesOfRecv);
-        m_SpeedOfSend     = QString("%1 B/s").arg(m_BytesOfSend - m_LastBytesOfSend);
+datahandler::datahandler(QWidget* parent) : QWidget(parent), m_TmrSpeedCalc(new QTimer(this)) {
+    connect(m_TmrSpeedCalc, &QTimer::timeout, [&]() {  // @ kBps
+        m_SpeedOfRecv     = QString("%1 kB/s").arg(QString::number((m_BytesOfRecv - m_LastBytesOfRecv) / 1024.0f, 'f', 2));
+        m_SpeedOfSend     = QString("%1 kB/s").arg(QString::number((m_BytesOfSend - m_LastBytesOfSend) / 1024.0f, 'f', 2));
         m_LastBytesOfRecv = m_BytesOfRecv;
         m_LastBytesOfSend = m_BytesOfSend;
-        emit update();
+        emit updatestat(m_BytesOfRecv, m_BytesOfSend, m_SpeedOfRecv, m_SpeedOfSend);
     });
 }
 
-datahandler::~datahandler() {}
-
 void datahandler::start() {
     m_TmrSpeedCalc->start(1000);
-    emit update();
     emit runstate(true);
 }
 
 void datahandler::stop() {
     m_TmrSpeedCalc->stop();
-    m_SpeedOfRecv = m_SpeedOfSend = QLatin1String("0 kB/s");
-    emit update();
+    m_SpeedOfRecv = m_SpeedOfSend = QLatin1String("0.00 kB/s");
+    emit updatestat(m_BytesOfRecv, m_BytesOfSend, m_SpeedOfRecv, m_SpeedOfSend);
     emit runstate(false);
 }
 
-QByteArray substr(const QByteArray& content, const QString& left, const QString& right) {
-    int start, end;
-    if ((start = content.indexOf(left)) == -1) return "";
-    start += left.length();
-    if ((end = right.isEmpty() ? content.length() : content.indexOf(right)) == -1) return "";
-    return content.mid(start, end - start);
-}
-
-void datahandler::recvdata(const QByteArray& bytes) {
+void datahandler::recvdata(const QByteArray& bytes /*按行读取*/) {
     m_buffer += bytes;
     m_BytesOfRecv += bytes.length();
     emit readdata(bytes);
-    if (bytes.contains('\n')) {  // 按行解析
+    if (bytes.endsWith('\n')) {  // 按行解析
         emit readline(m_buffer);
-        // emit(m_prefix.isEmpty() && m_suffix.isEmpty()) ? readcmd(m_buffer) : readcmd(substr(m_buffer, m_prefix, m_suffix));
+        // emit readline(m_buffer.remove(bytes.size(),1)); // 移除末尾换行符
         m_buffer.clear();
     }
 }

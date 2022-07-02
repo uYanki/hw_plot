@@ -11,14 +11,13 @@ class datahandler : public QWidget {
 
 public:
     explicit datahandler(QWidget* parent = nullptr);
-    ~datahandler();
 
     //////////////////////////////////////////////
 
 protected:
-    QTimer* m_TmrSpeedCalc = nullptr;
+    QTimer* const m_TmrSpeedCalc;
 
-public:
+private:
     // 字节数统计
 
     size_t m_LastBytesOfRecv = 0;
@@ -26,16 +25,25 @@ public:
     size_t m_BytesOfRecv     = 0;
     size_t m_BytesOfSend     = 0;
 
-    // 传输速率 ( Byte per second, Bps; kiloByte per second, kBps)
+    // 传输速率 (kiloByte per second, kBps)
 
     QString m_SpeedOfRecv;
     QString m_SpeedOfSend;
 
+public:
     virtual void start();
     virtual void stop();
 
 signals:
-    void update(void);
+
+    // 统计信息
+
+    void updatestat(size_t         BytesOfRecv,
+                    size_t         BytesOfSend,
+                    const QString& SpeedOfRecv,
+                    const QString& SpeedOfSend);
+
+    // 运行状态
     void runstate(bool state);
 
     //////////////////////////////////////////////
@@ -49,7 +57,6 @@ protected:
 signals:
     void readdata(const QByteArray& bytes);
     void readline(const QByteArray& bytes);
-    void readcmd(const QByteArray& bytes);
 
 protected:
     virtual void senddata(const QByteArray& bytes);

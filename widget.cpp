@@ -18,7 +18,6 @@ Widget::Widget(QWidget* parent)
     initUI();
 
     initChanTree();
-
 }
 
 Widget::~Widget() { delete ui; }
@@ -106,7 +105,6 @@ void Widget::initUI() {
     new uyk_treeitem_command(ui->tree_commands, "1");
 }
 
-
 void Widget::initChanTree() {
     // menu
 
@@ -130,7 +128,6 @@ void Widget::initChanTree() {
 }
 
 void Widget::initInterfaces() {
-
     ui->tab_interfaces->layout()->addWidget(m_interfaces = new tab_interfaces(ui->tab_interfaces));
     ui->tab_dataformat->layout()->addWidget(m_dataformat = new tab_dataformat(ui->tab_dataformat));
 
@@ -148,7 +145,7 @@ void Widget::initInterfaces() {
     });
 
     // 收发速率更新
-    connect(m_interfaces, &tab_interfaces::update_kBps,[&](const QString& send, const QString& recv){
+    connect(m_interfaces, &tab_interfaces::update_kBps, [&](const QString& send, const QString& recv) {
         ui->label_speed_of_send->setText(send);
         ui->label_speed_of_recv->setText(recv);
     });
@@ -156,7 +153,7 @@ void Widget::initInterfaces() {
     // 指令接收
     connect(m_interfaces, &tab_interfaces::recvCmd, [&](const QByteArray& recv) {
         // 指令过滤器
-        if(m_dataformat->filter(recv))return;
+        if (m_dataformat->filter(recv)) return;
 
         // 显示接收的指令
         if (!m_RawDataMd) appendText(recv);
@@ -168,34 +165,33 @@ void Widget::initInterfaces() {
         // 添加曲线点
 
         QVector<double> vals;
-        QStringList strlist = QString(recv).split(m_dataformat->delimiter(),Qt::KeepEmptyParts);
-        foreach(auto s,strlist) vals.append(s.toDouble());
+        QStringList     strlist = QString(recv).split(m_dataformat->delimiter(), Qt::KeepEmptyParts);
+        foreach (auto s, strlist) vals.append(s.toDouble());
 
         ui->plot_multicurve->addValues(vals);
         ui->plot_multicurve->xAxis->setRange(
-              ui->plot_multicurve->m_index > ui->plot_multicurve->xAxis->range().size() ? ( ui->plot_multicurve->m_index - ui->plot_multicurve->xAxis->range().size()) : 0
-                    ,ui->plot_multicurve->m_index);
+            ui->plot_multicurve->m_index > ui->plot_multicurve->xAxis->range().size() ? (ui->plot_multicurve->m_index - ui->plot_multicurve->xAxis->range().size()) : 0, ui->plot_multicurve->m_index);
 
-//        QStringList vals_recv;
-//        if (ui->input_dataformat_delimiter->text().isEmpty()) {
-//            vals_recv << recv;
-//        } else {
-//            vals_recv = QString(recv).split(ui->input_dataformat_delimiter->text(), QString::SkipEmptyParts);
-//        }
+        //        QStringList vals_recv;
+        //        if (ui->input_dataformat_delimiter->text().isEmpty()) {
+        //            vals_recv << recv;
+        //        } else {
+        //            vals_recv = QString(recv).split(ui->input_dataformat_delimiter->text(), QString::SkipEmptyParts);
+        //        }
 
-//        // vals_recv.removeLast();
-//        QVector<double> vals;
-//        for (int i = 0; i < vals_recv.size(); ++i) {
-//            if (m_channels.size() < i + 1) m_channels.append(new uyk_treeitem_channel(ui->tree_channel, QStr("channel %1").arg(m_channels.size() + 1)));
+        //        // vals_recv.removeLast();
+        //        QVector<double> vals;
+        //        for (int i = 0; i < vals_recv.size(); ++i) {
+        //            if (m_channels.size() < i + 1) m_channels.append(new uyk_treeitem_channel(ui->tree_channel, QStr("channel %1").arg(m_channels.size() + 1)));
 
-//            if (m_channels.at(i)->checkState(0) == Qt::CheckState::Checked) {
-//                vals << (vals_recv.at(i).toDouble() * m_channels.at(i)->m_spn_yScale->value() + m_channels.at(i)->m_spn_yOffset->value());
-//            } else {
-//                vals << vals_recv.at(i).toDouble();
-//            }
-//        }
+        //            if (m_channels.at(i)->checkState(0) == Qt::CheckState::Checked) {
+        //                vals << (vals_recv.at(i).toDouble() * m_channels.at(i)->m_spn_yScale->value() + m_channels.at(i)->m_spn_yOffset->value());
+        //            } else {
+        //                vals << vals_recv.at(i).toDouble();
+        //            }
+        //        }
 
-//        ui->plot->addVals(vals);
+        //        ui->plot->addVals(vals);
     });
 }
 

@@ -25,7 +25,16 @@ private:
 
     QList<treeitem_datafilter*> m_filters;
 
-public:
+     QString m_prefix;
+     QString m_suffix;
+     QString m_delimiter;
+
+signals:
+    void readcmd(const QByteArray& cmd);
+public slots:
+    void readline(const QByteArray& bytes);
+
+private:
     bool filter(const QByteArray& bytes);
 };
 

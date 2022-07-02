@@ -64,17 +64,20 @@ page_serialport::~page_serialport() { delete ui; }
 
 void page_serialport::start() {
     // open serialport
-    if (ui->cmb_port->currentIndex() == -1) return;
-    m_SerialPort->setPortName(ui->cmb_port->currentText());
-    if (m_SerialPort->open(QIODevice::ReadWrite)) {
-        ui->cmb_port->setEnabled(false);
-        ui->chk_signal_DTR->setEnabled(true);
-        ui->chk_signal_RTS->setEnabled(true);
-        datahandler::start();
-    }else{
-        // fail
+    if (ui->cmb_port->currentIndex()== -1) {
         emit datahandler::runstate(false);
-        QMessageBox::warning(this, QLatin1String("ERROR"), QLatin1String("fail to open serial port"));
+    }else{
+        m_SerialPort->setPortName(ui->cmb_port->currentText());
+        if (m_SerialPort->open(QIODevice::ReadWrite)) {
+            ui->cmb_port->setEnabled(false);
+            ui->chk_signal_DTR->setEnabled(true);
+            ui->chk_signal_RTS->setEnabled(true);
+            datahandler::start();
+        }else{
+            // fail
+            emit datahandler::runstate(false);
+            QMessageBox::warning(this, QLatin1String("ERROR"), QLatin1String("fail to open serial port"));
+        }
     }
 }
 

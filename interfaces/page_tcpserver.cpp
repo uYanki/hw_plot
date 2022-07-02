@@ -29,6 +29,7 @@ page_tcpserver::page_tcpserver(QWidget* parent) : datahandler(parent),
     m_Menu->addSeparator();
 
     m_Menu->addAction(QLatin1String("disconnect selected"), [this, enumItems]() { enumItems([&](QCheckBox* chk, int i) { if (chk->checkState() == Qt::Checked) m_Clients.at(i)->close(); }); });
+    m_Menu->addAction(QLatin1String("disconnect unselected"), [this, enumItems]() { enumItems([&](QCheckBox* chk, int i) { if (chk->checkState() == Qt::Unchecked) m_Clients.at(i)->close(); }); });
     m_Menu->addAction(QLatin1String("disconnect all"), [&]() { for(int i = ui->list_clients->count()-1 ;i>=0;--i) m_Clients.at(i)->close(); });
 
     // handle client
