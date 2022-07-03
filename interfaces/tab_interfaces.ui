@@ -56,6 +56,11 @@
        <string>TCP Client</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>Document</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item>
@@ -73,6 +78,7 @@
      <widget class="page_serialport" name="p_serialport"/>
      <widget class="page_tcpserver" name="p_tcpserver"/>
      <widget class="page_tcpclient" name="p_tcpclient"/>
+     <widget class="page_document" name="p_document"/>
     </widget>
    </item>
    <item>
@@ -114,6 +120,12 @@
    <class>page_tcpclient</class>
    <extends>QWidget</extends>
    <header>interfaces/page_tcpclient.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>page_document</class>
+   <extends>QWidget</extends>
+   <header>interfaces/page_document.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

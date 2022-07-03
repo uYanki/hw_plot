@@ -24,6 +24,7 @@ SOURCES += \
     datashow/subfilter.cpp \
     interfaces/formlayout.cpp \
     interfaces/getlocalip.cpp \
+    interfaces/page_document.cpp \
     interfaces/page_tcpclient.cpp \
     interfaces/page_tcpserver.cpp \
     interfaces/tab_dataformat.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     interfaces/formlayout.h \
     interfaces/datahandler.h \
     interfaces/getlocalip.h \
+    interfaces/page_document.h \
     interfaces/page_serialport.h \
     interfaces/page_tcpclient.h \
     interfaces/page_tcpserver.h \
@@ -67,6 +69,7 @@ HEADERS += \
 FORMS += \
     datashow/dataarea.ui \
     datashow/subfilter.ui \
+    interfaces/page_document.ui \
     interfaces/page_serialport.ui \
     interfaces/page_tcpclient.ui \
     interfaces/page_tcpserver.ui \

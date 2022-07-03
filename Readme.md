@@ -1,6 +1,8 @@
 硬件调试助手：
 
-![image-20220703022526171](README.assets/snapshot.png)
+![image-20220703022526171](README.assets/snapshot1.png)
+
+![image-20220703023131191](README.assets/snapshot2.png)
 
 * 接口：串口，TCP服务端，TCP客户端
 * 过滤器：自定义包头包尾，主过滤器，子过滤器
@@ -19,5 +21,5 @@
 
 ### TODO
 
-命令组，FFT 绘图，数据分析（检波、一阶/二阶差分）
+命令组，FFT 绘图，数据分析（检波、一阶/二阶差分、滤波）
 

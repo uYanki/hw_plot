@@ -25,6 +25,33 @@ void plot_multicurve::initAxis()
 void plot_multicurve::initMenu() {
     // 配置右键菜单
 
+    QMenu* menu_mode = new QMenu("mode", this);
+
+    m_Menu->addMenu(menu_mode);
+
+    QAction *actModeSingle,*actModeMulti,*actModeFFT;
+    (actModeSingle = menu_mode->addAction(QLatin1String("single"),[&](){
+        m_mode=0;
+        actModeSingle->setChecked(true);
+        actModeMulti->setChecked(false);
+        actModeFFT->setChecked(false);
+    }))->setCheckable(true);
+    actModeSingle->setChecked(true);
+    (actModeMulti = menu_mode->addAction(QLatin1String("multi"),[&](){
+        m_mode=1;
+        actModeSingle->setChecked(false);
+        actModeMulti->setChecked(true);
+        actModeFFT->setChecked(false);
+    }))->setCheckable(true);
+    (actModeFFT = menu_mode->addAction(QLatin1String("fft"),[&](){
+        m_mode=2;
+        actModeSingle->setChecked(false);
+        actModeMulti->setChecked(true);
+        actModeFFT->setChecked(false);
+    }))->setCheckable(true);
+
+    m_Menu->addSeparator();
+
     // - 坐标轴范围
 
     auto action_rescaley = [&]() {
@@ -98,6 +125,27 @@ void plot_multicurve::initMenu() {
 }
 #include <QDebug>
 bool plot_multicurve::addValues(const QVector<double>& values) {
+
+    if(m_mode ==0 ){
+
+        // auto add graph
+        if(mGraphs.size()!=1){
+            mGraphs.clear();
+            QCPGraph* p = addGraph(xAxis, yAxis);
+            p->setName(QLatin1String("line"));
+        }
+
+        // add values
+
+        for(int i=0;i<values.size();++i)
+            mGraphs.at(0)->data()->add(QCPGraphData(m_index++, values.at(i)));
+
+        xAxis->setRange(m_index > xAxis->range().size() ? (m_index -xAxis->range().size()) : 0,m_index);
+
+        return true;
+
+    }else{
+
     if (values.size() > MAX_COUNT_OF_CURVE) return false;
 
     // auto append graph
@@ -118,6 +166,8 @@ bool plot_multicurve::addValues(const QVector<double>& values) {
     ++m_index;
 
     xAxis->setRange(m_index > xAxis->range().size() ? (m_index -xAxis->range().size()) : 0,m_index);
-
     return true;
+
+    }
+    return false;
 }
