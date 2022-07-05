@@ -40,7 +40,6 @@ private:
 private:
     bool filter(const QByteArray& bytes);
 
-
 };
 
 #endif  // TAB_DATAFORMAT_H

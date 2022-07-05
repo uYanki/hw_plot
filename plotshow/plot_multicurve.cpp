@@ -29,7 +29,7 @@ void plot_multicurve::initMenu() {
 
     m_Menu->addMenu(menu_mode);
 
-    QAction *actModeSingle,*actModeMulti,*actModeFFT;
+    static QAction *actModeSingle,*actModeMulti,*actModeFFT;
     (actModeSingle = menu_mode->addAction(QLatin1String("single"),[&](){
         m_mode=0;
         actModeSingle->setChecked(true);
@@ -46,8 +46,8 @@ void plot_multicurve::initMenu() {
     (actModeFFT = menu_mode->addAction(QLatin1String("fft"),[&](){
         m_mode=2;
         actModeSingle->setChecked(false);
-        actModeMulti->setChecked(true);
-        actModeFFT->setChecked(false);
+        actModeMulti->setChecked(false);
+        actModeFFT->setChecked(true);
     }))->setCheckable(true);
 
     m_Menu->addSeparator();
@@ -123,13 +123,14 @@ void plot_multicurve::initMenu() {
     m_Menu->addSeparator();
     m_Menu->addAction("clear", [&]() { clearGraphs(); m_index = 0;});
 }
+#include "algorithm_fft.h"
 #include <QDebug>
 bool plot_multicurve::addValues(const QVector<double>& values) {
 
     if(m_mode ==0 ){
 
         // auto add graph
-        if(mGraphs.size()!=1){
+        if(mGraphs.size()==0){
             mGraphs.clear();
             QCPGraph* p = addGraph(xAxis, yAxis);
             p->setName(QLatin1String("line"));
@@ -144,7 +145,7 @@ bool plot_multicurve::addValues(const QVector<double>& values) {
 
         return true;
 
-    }else{
+    }else if(m_mode == 1 ){
 
     if (values.size() > MAX_COUNT_OF_CURVE) return false;
 
@@ -168,6 +169,32 @@ bool plot_multicurve::addValues(const QVector<double>& values) {
     xAxis->setRange(m_index > xAxis->range().size() ? (m_index -xAxis->range().size()) : 0,m_index);
     return true;
 
+    }else if(m_mode ==2){
+
+        if(values.length()>(1<<7)) return false;
+
+        double* fft_ret = q_fft(values,7);
+
+        // auto add graph
+        if(mGraphs.size()==0){
+            mGraphs.clear();
+            QCPGraph* p = addGraph(xAxis, yAxis);
+            p->setLineStyle(QCPGraph::lsImpulse);
+            p->setName(QLatin1String("line"));
+        }
+
+        // add values
+
+        mGraphs.at(0)->data().data()->clear();
+
+        for(int i=0;i<values.size()/2;++i)
+            mGraphs.at(0)->data()->add(QCPGraphData(i, fft_ret[i]));
+
+        xAxis->setRange(0,(1<<7)/2);
+
+        delete[] fft_ret;
+
+        return true;
     }
     return false;
 }

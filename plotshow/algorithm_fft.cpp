@@ -34,3 +34,35 @@ void fft(const double* src_x, const double* src_y, double* dst_x, double* dst_y,
     }
     free(buffer);
 }
+
+double* q_fft(const QVector<double>& in,size_t k){
+
+    int len = 1<<k;
+
+    double *src_x = new double[len];
+    double *src_y = new double[len];
+    double *dst_x = new double[len];
+    double *dst_y = new double[len];
+
+    for(int i =0 ;i< in.length();++i)
+        src_x[i] = in[i];
+
+    for(int i = in.length();i<len;++i)
+        src_x[i] = 0;
+
+    memset(src_y,0,len*sizeof(double));
+    memset(dst_x,0,len*sizeof(double));
+    memset(dst_y,0,len*sizeof(double));
+
+    len /=2;
+
+    double *out = new double[len];
+
+    fft(src_x,src_y,dst_x,dst_y,k);
+
+    for(int i = 0;i<len;++i)
+        out[i] = sqrt(dst_x[i]*dst_x[i]+dst_y[i]*dst_y[i]);
+
+    return out;
+
+}
